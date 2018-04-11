@@ -4,19 +4,27 @@ As a result, these instructions may become outdated as newer versions of [PCF](h
 
 Notes: 
 * my workstation is a  Mac, so my examples may need to be adapted if you plan on using a Windows workstation
-* when you see, for example, `$ terraform version`, it means you need to execute the command that follows the `$` prompt
+* when you see `$ terraform version`, it means you need to execute the command that follows the `$` prompt
 
-# Let's Deploy Concourse on GCP using Bosh
+# We start by deploying Concourse on GCP using Bosh
 We will deploy a BOSH director v1.x as part of these instructions. This Bosh Director will be dedicated to monitor and manage the health of the Concourse installation and it should not be used for a PCF deployment. We will need a separate BOSH v2.x to install PCF.
 
 ![](./Bosh-Director.png)
 
 ## List of Pre-requisites
-We will walk through each one of the items listed below.
-* An account on [Google Compute Engine](https://cloud.google.com/)
+Don't take any action yet. This list was placed here so you can get an idea of the tools we will be using.
+* An account on [Google Cloud Platform](https://cloud.google.com/)
 * An account on [Github](https://github.com/)
 * The [Terraform CLI](https://www.terraform.io/intro/index.html) installed on your workstation
 * The [gcloud CLI](https://cloud.google.com/sdk/gcloud/) installed on your workstation
+
+We will walk through each one of the items listed above to make sure all the necessary dependencies are in place.
+
+### Accessing the GCP (Google Cloud Platform) Console 
+To access the GCP Console you need a GCP account at https://cloud.google.com
+![](./gcp-login.png)
+Once you are logged in, you should see a GCP Console similar to the example shown below:
+![](./gcp-console.png)
 
 ### Installation of the Terraform CLI 
 We will need to use the [Terraform](https://www.terraform.io/intro/index.html) CLI from your workstation, so let's verify if `Terraform` is already installed:
@@ -199,6 +207,9 @@ Updating /Users/rmeira/Library/Caches/Homebrew/terraform--golang.org-x-tools--gi
 ==> make test bin
 🍺  /usr/local/Cellar/terraform/0.11.7: 6 files, 80.2MB, built in 2 minutes 56 seconds
 ```
+
+### Installation gcloud CLI on your GCP account
+* 
 
 * You must have the `gcloud` CLI installed on your workstation. Download it from [cloud.google.com/sdk](https://cloud.google.com/sdk/) and then proceed as follows:
 
