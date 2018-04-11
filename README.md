@@ -1,17 +1,204 @@
 # How to deploy PCF 2.0 on GCP using a Bosh-managed Concourse CI/CD Pipeline - April 2018
-The instructions on this page were taken from https://github.com/cloudfoundry-incubator/bosh-google-cpi-release/tree/master/docs/concourse and enhanced with examples and diagrams so that anyone, from newbies to experts, may get PCF up and running the 1st time ... instead of struggling with formats and details that normal instructions seem to skip. As a result, these instructions may become outdated as newer versions of [PCF](https://pivotal.io/de/platform), [Concourse](http://concourse-ci.org/), [GCE](https://cloud.google.com/) and [Bosh](http://bosh.io) become available.
+The instructions on this page were taken from https://github.com/cloudfoundry-incubator/bosh-google-cpi-release/tree/master/docs/concourse and enhanced with examples and diagrams so that anyone, from newbies to experts, may get PCF up and running on their 1st attempt. My goal is to keep you from struggling with cryptic formats and hidden details that normal instructions seem to skip. 
+As a result, these instructions may become outdated as newer versions of [PCF](https://pivotal.io/de/platform), [Concourse](http://concourse-ci.org/), [GCE](https://cloud.google.com/) and [Bosh](http://bosh.io) become available.
 
-# Let's start with the deployment of [Concourse](http://concourse-ci.org/) on [Google Compute Engine](https://cloud.google.com/) using [Bosh](http://bosh.io)
+Notes: 
+* my workstation is a  Mac, so my examples may need to be adapted if you plan on using a Windows workstation
+* when you see, for example, `$ terraform version`, it means you need to execute the command that follows the `$` prompt
+
+# Let's Deploy Concourse on GCP using Bosh
 We will deploy a BOSH director v1.x as part of these instructions. This Bosh Director will be dedicated to monitor and manage the health of the Concourse installation and it should not be used for a PCF deployment. We will need a separate BOSH v2.x to install PCF.
 
+![](./Bosh-Director.png)
 
+## List of Pre-requisites
+We will walk through each one of the items listed below.
+* An account on [Google Compute Engine](https://cloud.google.com/)
+* An account on [Github](https://github.com/)
+* The [Terraform CLI](https://www.terraform.io/intro/index.html) installed on your workstation
+* The [gcloud CLI](https://cloud.google.com/sdk/gcloud/) installed on your workstation
 
-## Pre-requisites
-- An account on [Google Compute Engine](https://cloud.google.com/)
-- An account on [Github](https://github.com/)
+### Installation of the Terraform CLI 
+We will need to use the [Terraform](https://www.terraform.io/intro/index.html) CLI from your workstation, so let's verify if `Terraform` is already installed:
+```
+$ terraform version
+Terraform v0.11.7
+```
+If you don't already have `Terraform` you can download and unzip [Terraform](https://www.terraform.io/downloads.html) to a directory of your chosing and then symlink the terraform executable to your `/usr/bin`. If you use `Brew` You can `brew install terraform` or `brew upgrade terraform` depending on whether or not you already have it installed.
 
-## Prerequisites
-* You must have the `terraform` CLI installed on your workstation. You can download and unzip [Terraform](https://www.terraform.io/downloads.html) to a directory of your chosing and then symlink the terraform executable to your `/usr/bin`. Or, if using a Mac, you can `brew install terraform` or `brew upgrade terraform` depending on whether or not you already have it installed.
+Here's what happened on my  Mac when I executed `brew upgrade terraform`:
+
+```
+$ brew upgrade terraform
+Updating Homebrew...
+==> Auto-updated Homebrew!
+Updated 3 taps (caskroom/cask, cloudfoundry/tap, homebrew/core).
+==> New Formulae
+annie              cquery             hcloud             libdazzle          php-code-sniffer   rtptools           tox
+apache-arrow-glib  flintrock          jrtplib            meson-internal     php-cs-fixer       scrcpy             trezor-agent
+aws-es-proxy       goto               jsonrpc-glib       mint               phpunit            ssh-permit-a38     util-linux
+composer           gr-osmosdr         latexdiff          netdata            qsoas              template-glib
+==> Updated Formulae
+awscli ✔                          fades                             libdvdcss                         picard-tools
+cloudfoundry/tap/bbl ✔            fail2ban                          libepoxy                          pick
+cloudfoundry/tap/cf-cli ✔         fd                                libfreehand                       pipenv
+cloudfoundry/tap/credhub-cli ✔    fdroidserver                      libgit2                           pipes-sh
+go ✔                              ffmbc                             libgit2-glib                      planck
+godep ✔                           firebase-cli                      libgweather                       plantuml
+hugo ✔                            fits                              libhdhomerun                      pmd
+openssl ✔                         flatbuffers                       libhttpseverywhere                points2grid
+python ✔                          flawfinder                        libidn                            postgis
+redis ✔                           flow                              liblas                            pqiv
+sqlite ✔                          fluent-bit                        liblcf                            pre-commit
+terraform ✔                       fn                                libmpdclient                      presto
+abcmidi                           folly                             libmspub                          primesieve
+abnfgen                           fonttools                         libmtp                            proj
+agda                              fq                                libosmium                         psqlodbc
+agedu                             freeciv                           libphonenumber                    pugixml
+allegro                           freeling                          libqalculate                      pycodestyle
+amber                             freetds                           librdkafka                        pyenv
+ammonite-repl                     frege                             libressl                          pygobject3
+angular-cli                       frugal                            librsvg                           qbs
+ansible                           fuse-emulator                     libsecret                         qpid-proton
+ant                               futhark                           libsoup                           qscintilla2
+apache-arrow                      g3log                             libspectre                        quicktype
+apache-geode                      gcab                              libtensorflow                     raylib
+apibuilder-cli                    gdal                              libusb                            re2
+apktool                           gdcm                              libuv                             reminiscence
+arangodb                          gdk-pixbuf                        libvirt                           robot-framework
+armor                             geckodriver                       libvisio                          rocksdb
+artifactory                       gedit                             linkerd                           rom-tools
+asciinema                         gegl                              lldpd                             ruby
+asio                              get-flash-videos                  lmdb                              ruby-build
+at-spi2-atk                       get_iplayer                       lmod                              ruby@2.2
+at-spi2-core                      geth                              lolcat                            ruby@2.3
+atk                               getmail                           lua                               rust
+ats2-postiats                     ghostscript                       lua@5.1                           s-nail
+autopep8                          git                               lxc                               s6
+aws-sdk-cpp                       git-annex                         mackup                            sagittarius-scheme
+azure-cli                         git-ftp                           macvim                            saltstack
+babl                              git-town                          mame                              samtools
+ballerina                         gitbucket                         mapnik                            sbcl
+basex                             gitfs                             mapserver                         sbt
+bcftools                          gitg                              mariadb                           scipy
+bcpp                              gitless                           mariadb@10.1                      scm-manager
+bedops                            gjs                               maxwell                           sdb
+bettercap                         glade                             mbedtls                           sdlpop
+bit                               glib                              media-info                        sile
+bitcoin                           glibmm                            mediaconch                        simgrid
+bitrise                           gmt                               mednafen                          simple-tiles
+botan                             gmt@4                             memcached                         singular
+braid                             gnatsd                            mercurial                         sip
+brotli                            gnome-builder                     metabase                          sjk
+buku                              gnu-sed                           mill                              skaffold
+byteman                           gnupg                             mimic                             skafos
+bzt                               go-jira                           minio-mc                          skinny
+c14-cli                           go@1.9                            miniupnpc                         slimerjs
+cabal-install                     gobject-introspection             mitmproxy                         solr
+caddy                             goenv                             mkvtoolnix                        sourcekitten
+calicoctl                         gom                               mm-common                         sourcery
+ccache                            google-benchmark                  modules                           sox
+ceres-solver                      gosu                              monetdb                           spigot
+certbot                           grafana                           mongo-c-driver                    sqldiff
+chakra                            grails                            mongodb@3.4                       sqlite-analyzer
+chamber                           grakn                             mpd                               sqlmap
+chapel                            graphene                          multimarkdown                     srt
+checkstyle                        gron                              mypy                              ssh-copy-id
+chromedriver                      groonga                           nano                              sshuttle
+chronograf                        grpc                              nativefier                        stdman
+clamav                            gsoap                             nats-streaming-server             stellar-core
+cliclick                          gst-plugins-good                  ncmpc                             svgcleaner
+clinfo                            gtk-doc                           nco                               swiftlint
+closure-compiler                  gtk-vnc                           neo4j                             syncthing
+cmake                             gtksourceview3                    neofetch                          sysbench
+cnats                             gutenberg                         neomutt                           sysdig
+cockroach                         hadolint                          newsboat                          talloc
+cocoapods                         handbrake                         nginx                             tarantool
+coffeescript                      haproxy                           nifi                              tbb
+collectd                          harfbuzz                          node                              tectonic
+conan                             headphones                        node-build                        teleport
+conjure-up                        heroku                            node@4                            terragrunt
+container-diff                    hfstospell                        node@6                            testssl
+convmv                            hledger                           node@8                            tinyxml2
+convox                            hlint                             nodeenv                           tmuxinator-completion
+couchdb                           htmldoc                           noti                              todo-txt
+cppcheck                          htop                              notmuch                           tomcat
+cryptopp                          htslib                            nss                               treefrog
+czmq                              http-parser                       ntl                               twarc
+darcs                             hwloc                             nuget                             txr
+dartsim                           icu4c                             nuxeo                             typescript
+davmail                           imagemagick                       ocrmypdf                          uhd
+dbhash                            imagemagick@6                     odpi                              unbound
+dcm2niix                          internetarchive                   offlineimap                       unrar
+dcos-cli                          ipfs                              open-mpi                          unyaffs
+ddgr                              ipython                           open-scene-graph                  vala
+dependency-check                  ipython@5                         openimageio                       vault
+dhall-json                        ircd-hybrid                       openldap                          vim
+di                                jadx                              openshift-cli                     vim@7.4
+diffoscope                        jbig2enc                          openssh                           vips
+django-completion                 jena                              openssl@1.1                       vis
+dnscrypt-proxy                    jenkins                           openttd                           vnu
+docfx                             jenkins-job-builder               openvdb                           vte3
+docker                            jhipster                          optipng                           watch
+docker-completion                 joplin                            osm2pgrouting                     webpack
+docker-compose                    jpegoptim                         osmium-tool                       widelands
+docker-compose-completion         json-glib                         osquery                           wine
+doctl                             juju                              packer                            wireshark
+dovecot                           kedge                             packmol                           xmount
+dscanner                          knot-resolver                     paket                             xmrig
+duck                              kompose                           pandoc-crossref                   xtensor
+dwdiff                            kotlin                            pango                             yash
+dynamips                          kubectx                           parallelstl                       yaz
+e2fsprogs                         kubeless                          passenger                         youtube-dl
+ejabberd                          kubernetes-cli                    pazpar2                           yq
+embulk                            languagetool                      pcb                               zabbix
+erlang@19                         laszip                            pdal                              zebra
+etcd                              lbdb                              pdnsrec                           zenity
+evince                            libatomic_ops                     percona-server-mongodb            zeromq
+exomizer                          libbi                             percona-xtrabackup                zorba
+exploitdb                         libcdr                            pgcli                             zsh
+eye-d3                            libcouchbase                      pgroonga                          zstd
+faas-cli                          libdill                           php
+==> Renamed Formulae
+php56 -> php@5.6                             php70 -> php@7.0                             php71 -> php@7.1
+==> Deleted Formulae
+arm
+
+==> Upgrading 1 outdated package, with result:
+terraform 0.11.5 -> 0.11.7
+==> Upgrading terraform 
+==> Installing dependencies for terraform: go
+==> Installing terraform dependency: go
+==> Downloading https://dl.google.com/go/go1.10.1.src.tar.gz
+######################################################################## 100.0%
+==> Downloading https://storage.googleapis.com/golang/go1.7.darwin-amd64.tar.gz
+Already downloaded: /Users/rmeira/Library/Caches/Homebrew/go--gobootstrap-1.7.tar.gz
+==> ./make.bash --no-clean
+==> /usr/local/Cellar/go/1.10.1/bin/go install -race std
+==> Cloning https://go.googlesource.com/tools.git
+Updating /Users/rmeira/Library/Caches/Homebrew/go--gotools--git
+==> Checking out branch release-branch.go1.10
+==> go build
+==> Caveats
+A valid GOPATH is required to use the `go get` command.
+If $GOPATH is not specified, $HOME/go will be used by default:
+  https://golang.org/doc/code.html#GOPATH
+
+You may wish to add the GOROOT-based install location to your PATH:
+  export PATH=$PATH:/usr/local/opt/go/libexec/bin
+==> Summary
+🍺  /usr/local/Cellar/go/1.10.1: 8,158 files, 336.8MB, built in 1 minute 41 seconds
+==> Installing terraform
+==> Downloading https://github.com/hashicorp/terraform/archive/v0.11.7.tar.gz
+==> Downloading from https://codeload.github.com/hashicorp/terraform/tar.gz/v0.11.7
+######################################################################## 100.0%
+==> Cloning https://go.googlesource.com/tools.git
+Updating /Users/rmeira/Library/Caches/Homebrew/terraform--golang.org-x-tools--git
+==> Checking out branch release-branch.go1.10
+==> go install
+==> make test bin
+🍺  /usr/local/Cellar/terraform/0.11.7: 6 files, 80.2MB, built in 2 minutes 56 seconds
+```
 
 * You must have the `gcloud` CLI installed on your workstation. Download it from [cloud.google.com/sdk](https://cloud.google.com/sdk/) and then proceed as follows:
 
