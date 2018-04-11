@@ -1,6 +1,6 @@
 # How to deploy PCF 2.0 on GCP using a Bosh-managed Concourse CI/CD Pipeline - April 2018
 The instructions on this page were taken from https://github.com/cloudfoundry-incubator/bosh-google-cpi-release/tree/master/docs/concourse and enhanced with examples and diagrams so that anyone, from newbies to experts, may get PCF up and running on their 1st attempt. My goal is to keep you from struggling with cryptic formats and hidden details that normal instructions seem to skip. 
-As a result, these instructions may become outdated as newer versions of [PCF](https://pivotal.io/de/platform), [Concourse](http://concourse-ci.org/), [GCE](https://cloud.google.com/) and [Bosh](http://bosh.io) become available.
+As a result, these instructions will become outdated as newer versions of [PCF](https://pivotal.io/de/platform), [Concourse](http://concourse-ci.org/), [GCE](https://cloud.google.com/) and [Bosh](http://bosh.io) become available.
 
 Notes: 
 * my workstation is a  Mac, so my examples may need to be adapted if you plan on using a Windows workstation
@@ -343,7 +343,7 @@ For more information on how to get started, please visit:
 
 ```
 
-Using a new Terminal window on my  Mac, so that any newly created environment variables are taken into account, proceed as follows:
+Using a *new* Terminal window on my  Mac, so that any newly created environment variables are taken into account, proceed as follows:
 
 ````
 $ cd /work/google-cloud-sdk/
@@ -478,7 +478,48 @@ Let's check what do I have installed:
 ````
 $ gcloud components list
 ````
-Let's check what is my configuration:
+The expected results should look something like this:
+```
+$ gcloud components list
+
+Your current Cloud SDK version is: 197.0.0
+The latest available version is: 197.0.0
+
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                                  Components                                                 │
+├───────────────┬──────────────────────────────────────────────────────┬──────────────────────────┬───────────┤
+│     Status    │                         Name                         │            ID            │    Size   │
+├───────────────┼──────────────────────────────────────────────────────┼──────────────────────────┼───────────┤
+│ Not Installed │ App Engine Go Extensions                             │ app-engine-go            │ 151.3 MiB │
+│ Not Installed │ Cloud Bigtable Command Line Tool                     │ cbt                      │   4.7 MiB │
+│ Not Installed │ Cloud Bigtable Emulator                              │ bigtable                 │   3.8 MiB │
+│ Not Installed │ Cloud Datalab Command Line Tool                      │ datalab                  │   < 1 MiB │
+│ Not Installed │ Cloud Datastore Emulator                             │ cloud-datastore-emulator │  17.9 MiB │
+│ Not Installed │ Cloud Datastore Emulator (Legacy)                    │ gcd-emulator             │  38.1 MiB │
+│ Not Installed │ Cloud Pub/Sub Emulator                               │ pubsub-emulator          │  33.4 MiB │
+│ Not Installed │ Emulator Reverse Proxy                               │ emulator-reverse-proxy   │  14.5 MiB │
+│ Not Installed │ Google Container Local Builder                       │ container-builder-local  │   3.7 MiB │
+│ Not Installed │ Google Container Registry's Docker credential helper │ docker-credential-gcr    │   2.5 MiB │
+│ Not Installed │ gcloud Alpha Commands                                │ alpha                    │   < 1 MiB │
+│ Not Installed │ gcloud Beta Commands                                 │ beta                     │   < 1 MiB │
+│ Not Installed │ gcloud app Java Extensions                           │ app-engine-java          │ 118.9 MiB │
+│ Not Installed │ gcloud app PHP Extensions                            │ app-engine-php           │  21.9 MiB │
+│ Not Installed │ gcloud app Python Extensions                         │ app-engine-python        │   6.2 MiB │
+│ Not Installed │ gcloud app Python Extensions (Extra Libraries)       │ app-engine-python-extras │  27.8 MiB │
+│ Not Installed │ kubectl                                              │ kubectl                  │  12.2 MiB │
+│ Installed     │ BigQuery Command Line Tool                           │ bq                       │   < 1 MiB │
+│ Installed     │ Cloud SDK Core Libraries                             │ core                     │   7.5 MiB │
+│ Installed     │ Cloud Storage Command Line Tool                      │ gsutil                   │   3.4 MiB │
+└───────────────┴──────────────────────────────────────────────────────┴──────────────────────────┴───────────┘
+To install or remove components at your current SDK version [197.0.0], run:
+  $ gcloud components install COMPONENT_ID
+  $ gcloud components remove COMPONENT_ID
+
+To update your SDK installation to the latest version [197.0.0], run:
+  $ gcloud components update
+```
+
+Let's check my configuration by using the following command: `gcloud config list`. 
 ````
 $ gcloud config list
 [compute]
@@ -486,47 +527,73 @@ region = us-east1
 zone = us-east1-b
 [core]
 account = rmeira@pivotal.io
-disable_usage_reporting = True
+disable_usage_reporting = False
 project = fe-rmeira
+
+Your active configuration is: [default]
 ````
+The resulting values shown above are very important because they define where the VMs and Storage Buckets will be created by default, and by what account and project_id.
 
 ### Setup your workstation
+We need to set-up environment variables on your workstation (in my case, my Mac) before proceeding with the creation of VMs and storage buckets:
 
 1. Set your project ID:
 
   ```
-  export projectid=REPLACE_WITH_YOUR_PROJECT_ID
+  $ export projectid=REPLACE_WITH_YOUR_PROJECT_ID
   ```
   
-   Which in my case is `export projectid=fe-rmeira; echo $projectid`
+  Which in my case is `export projectid=fe-rmeira; echo $projectid`
 
 2. Export your preferred compute region and zone:
 
   ```
-  export region=us-east1
-  export zone=us-east1-b
-  export zone2=us-east1-c
+  $ export region=us-east1
+  $ export zone=us-east1-b
+  $ export zone2=us-east1-c
   ```
-
+  
+  Why did I pick, zone2 to be us-east1-c? For no other reason than the fact that us-east1-c should be close to us-east1-b - both being located somewhere around Moncks Corner, a town in South Carolina. You can find additional details about GCP regions, zones and the features of the VMs and storage buckets by accessing https://cloud.google.com/compute/docs/regions-zones/
+  
 3. Configure `gcloud` with a user who is an owner of the project:
 
   ```
-  gcloud auth login
+  $ gcloud auth login
   ```
-  The command above will open up a browser at `https://cloud.google.com/sdk/auth_success` to authenticate you.
+  The command above opens up a browser at `https://cloud.google.com/sdk/auth_success` to authenticate you. 
+  You should see the following output on your Mac Terminal: 
+  
+  ```
+  Your browser has been opened to visit:
+
+    https://accounts.google.com/o/oauth2/auth?redirect_uri=http%3A%2F%2Flocalhost%3A8085%2F&prompt=select_account&response_type=code&client_id=3212345640559.apps.googleusercontent.com&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fcloud-platform+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fappengine.admin+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fcompute+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Faccounts.reauth&access_type=offline
+
+
+WARNING: \`gcloud auth login\` no longer writes application default credentials.
+If you need to use ADC, see:
+  gcloud auth application-default --help
+
+You are now logged in as [rmeira@pivotal.io].
+Your current project is [fe-rmeira].  You can change this setting by running:
+  $ gcloud config set project PROJECT_ID
+  ```
+  
+  and on the browser window that opens up, you should see:
+  
+  ![](./google-sdk-auth.png)
   
   Proceed with:
   ```
-  gcloud config set project ${projectid}
-  gcloud config set compute/zone ${zone}
-  gcloud config set compute/region ${region}
+  $ gcloud config set project ${projectid}
+  $ gcloud config set compute/zone ${zone}
+  $ gcloud config set compute/region ${region}
   ```
    
 4. Create a service account and key:
 
   ```
-  gcloud iam service-accounts create terraform-bosh
-  gcloud iam service-accounts keys create /tmp/terraform-bosh.key.json \
+  $ gcloud iam service-accounts create terraform-bosh
+  $ gcloud iam service-accounts keys create /tmp/terraform-bosh.key.json \
       --iam-account terraform-bosh@${projectid}.iam.gserviceaccount.com
   ```
 
