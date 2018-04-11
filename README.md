@@ -589,7 +589,7 @@ Your current project is [fe-rmeira].  You can change this setting by running:
   $ gcloud config set compute/zone ${zone}
   $ gcloud config set compute/region ${region}
   ```
-  For easy copy-&-paste, I used:  `export region=us-east1; export zone=us-east1-b; export zone2=us-east1-c;`  
+  For easy copy-&-paste, I used:  `gcloud config set project ${projectid}; gcloud config set compute/zone ${zone}; gcloud config set compute/region ${region}; `  
     
   You should see the following output:
   
@@ -602,7 +602,7 @@ Your current project is [fe-rmeira].  You can change this setting by running:
   Updated property [compute/region].
   ```
      
-4. Now we need to create a service account and key using the following commands:
+4. Now we need to create a service account and service key to enable Terraform to execute scripts that will create infrastructure in GCP:
 
   ```
   $ gcloud iam service-accounts create terraform-bosh
@@ -615,17 +615,20 @@ Your current project is [fe-rmeira].  You can change this setting by running:
   $ gcloud iam service-accounts create terraform-bosh
   Created service account [terraform-bosh].
   ```
-  and
+  and the results from the `gcloud iam service-accounts keys create...` command are:
   ```
   $ gcloud iam service-accounts keys create /tmp/terraform-bosh.key.json --iam-account terraform-bosh@${projectid}.iam.gserviceaccount.com
   created key [172691632345678ddd] of type [json] as [/tmp/terraform-bosh.key.json] for [terraform-bosh@fe-rmeira.iam.gserviceaccount.com]
   ```
 
-5. Now let's grant the new service account editor access to your project:
+5. Now let's grant the new service account (which will be used by Terraform) the editor level access to your project:
 
   ```
-  $ gcloud projects add-iam-policy-binding ${projectid} --member serviceAccount:terraform-bosh@${projectid}.iam.gserviceaccount.com --role roles/editor
+  $ gcloud projects add-iam-policy-binding ${projectid} \
+    --member serviceAccount:terraform-bosh@${projectid}.iam.gserviceaccount.com \
+    --role roles/editor
   ```
+  
   The expected output should be similar to the example below:
   ```
   $ gcloud projects add-iam-policy-binding ${projectid} --member serviceAccount:terraform-bosh@${projectid}.iam.gserviceaccount.com --role roles/editor
@@ -653,34 +656,314 @@ etag: BwVpmCGKBpw=
 version: 1
   ```
 
-6. Let's make your service account's key available in an environment variable to be used by `terraform`:
+6. Let's make your service account's key is available in an environment variable to be used by Terraform:
 
   ```
   $ export GOOGLE_CREDENTIALS=$(cat /tmp/terraform-bosh.key.json)
   ```
+  
   You can check the contents of GOOGLE_CREDENTIALS as follows:
   ```
   $ echo $GOOGLE_CREDENTIALS
-{ "type": "service_account", "project_id": "fe-rmeira", "private_key_id": "17269656872577741121e63a90b72f28ff9a0ddd", "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDOeznJfMSp6sPr\n3Hum+VwnZ+5FDuwFGU5EbW0bLhnmpK44f0h2w/kSMe3qebZPyTqqbtUaJ5wfuuZ2\nzdU7K3jTbf2Y1mFNlGkGAzXKHAEIuNp/O6hfXRMdOmQoNUR1Yx3ySRvhszm4fHnE\ngjrxNHI5nSQjlpHLDTtamolrRysWFefyjQM+JlKF5fKZO4XmEZlIOjowKrMQSlrw\nnGLge5an9wYHQGfkwVVjELHr9NtDQTLVN/C3icc9WF4VMi+7D2kjNzNpU0H7qibM\n92kxg728L77R/2tBXdmG7lPqk3ZZPbGoTEO5ZSi8G/6Ui3I30gyGnoejL73M8ZQx\nGAhMQG0XAgMBAAEC...
-\nwELmGUROcvRkwS1EBHTA9sAeRf1hn7B7ZkXDys7xuK4ZJiswA1/L6iKi8dXfkzgs\nz9QVi8uPvN1dv1aWJbVC5yuG1Ll3bFTXfx7miBszwvPdgvbqXDRAs+AhoYEsmatR\nQSNFAyDRoJeM+2NPCPSRpK9U\n-----END PRIVATE KEY-----\n", "client_email": "terraform-bosh@fe-rmeira.iam.gserviceaccount.com", "client_id": "111780899105249296126", "auth_uri": "https://accounts.google.com/o/oauth2/auth", "token_uri": "https://accounts.google.com/o/oauth2/token", "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs", "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/terraform-bosh%40fe-rmeira.iam.gserviceaccount.com" }
+{ "type": "service_account", "project_id": "fe-rmeira", "private_key_id": "17269656872512345678909a0ddd", 
+   "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBK1234567890eznJfMSp6sPr\n3Hum+VwnZ+5FDuwFGU5EbW0bLhnmpK44f0h2w/kSMe3qebZPyuuZ2\n
+  3bFTXfx7miBszwvPdgvbqXDRAs+AhoYEsmatR\nQSNFAyDRoJeM+2NPCPSRpK9U\n-----END PRIVATE KEY-----\n",
+  "client_email": "terraform-bosh@fe-rmeira.iam.gserviceaccount.com", "client_id": "111780899105249296126", "auth_uri":
+  "https://accounts.google.com/o/oauth2/auth", "token_uri": "https://accounts.google.com/o/oauth2/token", "auth_provider_x509_cert_url": 
+  "https://www.googleapis.com/oauth2/v1/certs", "client_x509_cert_url": 
+  "https://www.googleapis.com/robot/v1/metadata/x509/terraform-bosh%40fe-rmeira.iam.gserviceaccount.com" }
   ```
   
-### Create required infrastructure with Terraform
+### Now let's create required GCP infrastructure using Terraform
 
-1. Download [main.tf](main.tf) and [concourse.tf](concourse.tf) from this repository. And take a look at each one of these files.
+1. Download [main.tf](main.tf) and [concourse.tf](concourse.tf) from this repository. 
 
-2. In a terminal from the same directory where the two `.tf` files are located, execute `terraform init` and then view the Terraform execution plan to see the resources that will be created:
+* And take a look at each one of these files to make sure they are pointing to the correct GCP region, zones, etc...
+* I decided to place both `main.tf` and `concourse.tf` under the same `/work/google-cloud-sdk`
+
+2. In a terminal on my Mac, from the same directory where the two `.tf` files are located, execute `terraform init` and then view the Terraform execution plan to see the resources that will be created:
 
   ```
   $ terraform init
+  ```  
+  
+  The expected output should be similar to the example shown below:
   ```
-To view the execution plan:
+  $ terraform init
+  
+Initializing provider plugins...
+- Checking for available provider plugins on https://releases.hashicorp.com...
+- Downloading plugin for provider "google" (1.9.0)...
+
+The following providers do not have any version constraints in configuration,
+so the latest version was installed.
+
+To prevent automatic upgrades to new major versions that may contain breaking
+changes, it is recommended to add version = "..." constraints to the
+corresponding provider blocks in configuration, with the constraint strings
+suggested below.
+
+* provider.google: version = "~> 1.9"
+
+Terraform has been successfully initialized!
+
+You may now begin working with Terraform. Try running "terraform plan" to see
+any changes that are required for your infrastructure. All Terraform commands
+should now work.
+
+If you ever set or change modules or backend configuration for Terraform,
+rerun this command to reinitialize your working directory. If you forget, other
+commands will detect it and remind you to do so if necessary.
+  ```
+  
+To view the execution plan, use the following command:
 
   ```
-  terraform plan -var projectid=${projectid} -var region=${region} -var zone-1=${zone} -var zone-2=${zone2}
+  $ terraform plan -var projectid=${projectid} -var region=${region} -var zone-1=${zone} -var zone-2=${zone2}
+  ```
+  
+  The expected output should be similar to the example shown below:
+
+  ```
+  $ terraform plan -var projectid=${projectid} -var region=${region} -var zone-1=${zone} -var zone-2=${zone2}
+  
+  Refreshing Terraform state in-memory prior to plan...
+The refreshed state will be used to calculate this plan, but will not be
+persisted to local or remote state storage.
+------------------------------------------------------------------------
+An execution plan has been generated and is shown below.
+Resource actions are indicated with the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  + google_compute_address.concourse
+      id:                                                  <computed>
+      address:                                             <computed>
+      address_type:                                        "EXTERNAL"
+      name:                                                "concourse"
+      project:                                             <computed>
+      region:                                              <computed>
+      self_link:                                           <computed>
+
+  + google_compute_firewall.bosh-bastion
+      id:                                                  <computed>
+      allow.#:                                             "2"
+      allow.1367131964.ports.#:                            "0"
+      allow.1367131964.protocol:                           "icmp"
+      allow.803338340.ports.#:                             "1"
+      allow.803338340.ports.0:                             "22"
+      allow.803338340.protocol:                            "tcp"
+      destination_ranges.#:                                <computed>
+      direction:                                           <computed>
+      name:                                                "bosh-bastion-concourse"
+      network:                                             "concourse"
+      priority:                                            "1000"
+      project:                                             <computed>
+      self_link:                                           <computed>
+      source_ranges.#:                                     <computed>
+      target_tags.#:                                       "1"
+      target_tags.1860295641:                              "bosh-bastion"
+
+  + google_compute_firewall.bosh-internal
+      id:                                                  <computed>
+      allow.#:                                             "3"
+      allow.1367131964.ports.#:                            "0"
+      allow.1367131964.protocol:                           "icmp"
+      allow.1486604749.ports.#:                            "0"
+      allow.1486604749.protocol:                           "udp"
+      allow.3848845357.ports.#:                            "0"
+      allow.3848845357.protocol:                           "tcp"
+      destination_ranges.#:                                <computed>
+      direction:                                           <computed>
+      name:                                                "bosh-internal-concourse"
+      network:                                             "concourse"
+      priority:                                            "1000"
+      project:                                             <computed>
+      self_link:                                           <computed>
+      source_ranges.#:                                     <computed>
+      source_tags.#:                                       "1"
+      source_tags.2206338310:                              "bosh-internal"
+      target_tags.#:                                       "1"
+      target_tags.2206338310:                              "bosh-internal"
+
+  + google_compute_firewall.concourse-internal
+      id:                                                  <computed>
+      allow.#:                                             "3"
+      allow.1367131964.ports.#:                            "0"
+      allow.1367131964.protocol:                           "icmp"
+      allow.1486604749.ports.#:                            "0"
+      allow.1486604749.protocol:                           "udp"
+      allow.3848845357.ports.#:                            "0"
+      allow.3848845357.protocol:                           "tcp"
+      destination_ranges.#:                                <computed>
+      direction:                                           <computed>
+      name:                                                "concourse-internal"
+      network:                                             "concourse"
+      priority:                                            "1000"
+      project:                                             <computed>
+      self_link:                                           <computed>
+      source_ranges.#:                                     <computed>
+      source_tags.#:                                       "2"
+      source_tags.1832082793:                              "concourse-internal"
+      source_tags.2206338310:                              "bosh-internal"
+      target_tags.#:                                       "2"
+      target_tags.1832082793:                              "concourse-internal"
+      target_tags.2206338310:                              "bosh-internal"
+
+  + google_compute_firewall.concourse-public
+      id:                                                  <computed>
+      allow.#:                                             "1"
+      allow.3387774561.ports.#:                            "4"
+      allow.3387774561.ports.0:                            "80"
+      allow.3387774561.ports.1:                            "8080"
+      allow.3387774561.ports.2:                            "443"
+      allow.3387774561.ports.3:                            "4443"
+      allow.3387774561.protocol:                           "tcp"
+      destination_ranges.#:                                <computed>
+      direction:                                           <computed>
+      name:                                                "concourse-public"
+      network:                                             "concourse"
+      priority:                                            "1000"
+      project:                                             <computed>
+      self_link:                                           <computed>
+      source_ranges.#:                                     "1"
+      source_ranges.1080289494:                            "0.0.0.0/0"
+      target_tags.#:                                       "1"
+      target_tags.1288521255:                              "concourse-public"
+
+  + google_compute_forwarding_rule.concourse-http-forwarding-rule
+      id:                                                  <computed>
+      ip_address:                                          "${google_compute_address.concourse.address}"
+      ip_protocol:                                         "TCP"
+      load_balancing_scheme:                               "EXTERNAL"
+      name:                                                "concourse-http-forwarding-rule"
+      port_range:                                          "80-80"
+      project:                                             <computed>
+      region:                                              <computed>
+      self_link:                                           <computed>
+      subnetwork:                                          <computed>
+      target:                                              "${google_compute_target_pool.concourse-target-pool.self_link}"
+
+  + google_compute_forwarding_rule.concourse-https-forwarding-rule
+      id:                                                  <computed>
+      ip_address:                                          "${google_compute_address.concourse.address}"
+      ip_protocol:                                         "TCP"
+      load_balancing_scheme:                               "EXTERNAL"
+      name:                                                "concourse-https-forwarding-rule"
+      port_range:                                          "443-443"
+      project:                                             <computed>
+      region:                                              <computed>
+      self_link:                                           <computed>
+      subnetwork:                                          <computed>
+      target:                                              "${google_compute_target_pool.concourse-target-pool.self_link}"
+
+  + google_compute_instance.bosh-bastion
+      id:                                                  <computed>
+      boot_disk.#:                                         "1"
+      boot_disk.0.auto_delete:                             "true"
+      boot_disk.0.device_name:                             <computed>
+      boot_disk.0.disk_encryption_key_sha256:              <computed>
+      boot_disk.0.initialize_params.#:                     "1"
+      boot_disk.0.initialize_params.0.image:               "ubuntu-1404-trusty-v20180122"
+      boot_disk.0.initialize_params.0.size:                <computed>
+      boot_disk.0.initialize_params.0.type:                <computed>
+      can_ip_forward:                                      "false"
+      cpu_platform:                                        <computed>
+      create_timeout:                                      "4"
+      deletion_protection:                                 "false"
+      guest_accelerator.#:                                 <computed>
+      instance_id:                                         <computed>
+      label_fingerprint:                                   <computed>
+      machine_type:                                        "n1-standard-1"
+      metadata_fingerprint:                                <computed>
+      metadata_startup_script:                             "#!/bin/bash\napt-get update -y\napt-get install -y build-essential zlibc zlib1g-dev ruby ruby-dev openssl libxslt-dev libxml2-dev libssl-dev libreadline6 libreadline6-dev libyaml-dev libsqlite3-dev sqlite3\ngem install bosh_cli\ncurl -o /tmp/cf.tgz https://s3.amazonaws.com/go-cli/releases/v6.20.0/cf-cli_6.20.0_linux_x86-64.tgz\ntar -zxvf /tmp/cf.tgz && mv cf /usr/bin/cf && chmod +x /usr/bin/cf\ncurl -o /usr/bin/bosh-init https://s3.amazonaws.com/bosh-init-artifacts/bosh-init-0.0.96-linux-amd64\nchmod +x /usr/bin/bosh-init\n"
+      name:                                                "bosh-bastion-concourse"
+      network_interface.#:                                 "1"
+      network_interface.0.access_config.#:                 "1"
+      network_interface.0.access_config.0.assigned_nat_ip: <computed>
+      network_interface.0.access_config.0.nat_ip:          <computed>
+      network_interface.0.address:                         <computed>
+      network_interface.0.name:                            <computed>
+      network_interface.0.network_ip:                      <computed>
+      network_interface.0.subnetwork:                      "bosh-concourse-us-east1"
+      network_interface.0.subnetwork_project:              <computed>
+      project:                                             <computed>
+      scheduling.#:                                        <computed>
+      self_link:                                           <computed>
+      service_account.#:                                   "1"
+      service_account.0.email:                             <computed>
+      service_account.0.scopes.#:                          "1"
+      service_account.0.scopes.1733087937:                 "https://www.googleapis.com/auth/cloud-platform"
+      tags.#:                                              "2"
+      tags.1860295641:                                     "bosh-bastion"
+      tags.2206338310:                                     "bosh-internal"
+      tags_fingerprint:                                    <computed>
+      zone:                                                "us-east1-b"
+
+  + google_compute_network.network
+      id:                                                  <computed>
+      auto_create_subnetworks:                             "true"
+      gateway_ipv4:                                        <computed>
+      name:                                                "concourse"
+      project:                                             <computed>
+      routing_mode:                                        <computed>
+      self_link:                                           <computed>
+
+  + google_compute_subnetwork.bosh-subnet-1
+      id:                                                  <computed>
+      fingerprint:                                         <computed>
+      gateway_address:                                     <computed>
+      ip_cidr_range:                                       "10.0.0.0/24"
+      name:                                                "bosh-concourse-us-east1"
+      network:                                             "${google_compute_network.network.self_link}"
+      project:                                             <computed>
+      region:                                              <computed>
+      self_link:                                           <computed>
+
+  + google_compute_subnetwork.concourse-public-subnet-1
+      id:                                                  <computed>
+      fingerprint:                                         <computed>
+      gateway_address:                                     <computed>
+      ip_cidr_range:                                       "10.120.0.0/16"
+      name:                                                "concourse-public-us-east1-1"
+      network:                                             "${google_compute_network.network.self_link}"
+      project:                                             <computed>
+      region:                                              <computed>
+      self_link:                                           <computed>
+
+  + google_compute_subnetwork.concourse-public-subnet-2
+      id:                                                  <computed>
+      fingerprint:                                         <computed>
+      gateway_address:                                     <computed>
+      ip_cidr_range:                                       "10.121.0.0/16"
+      name:                                                "concourse-public-us-east1-2"
+      network:                                             "${google_compute_network.network.self_link}"
+      project:                                             <computed>
+      region:                                              <computed>
+      self_link:                                           <computed>
+
+  + google_compute_target_pool.concourse-target-pool
+      id:                                                  <computed>
+      instances.#:                                         <computed>
+      name:                                                "concourse-target-pool"
+      project:                                             <computed>
+      region:                                              <computed>
+      self_link:                                           <computed>
+      session_affinity:                                    "NONE"
+
+
+Plan: 13 to add, 0 to change, 0 to destroy.
+
+------------------------------------------------------------------------
+
+Note: You didn't specify an "-out" parameter to save this plan, so Terraform
+can't guarantee that exactly these actions will be performed if
+"terraform apply" is subsequently run.
+
   ```
 
-3. Create the resources:
+3. We can now execute the Terraform scripts to create the GCP resources:
 
   ```
   terraform apply -var projectid=${projectid} -var region=${region} -var zone-1=${zone} -var zone-2=${zone2}
