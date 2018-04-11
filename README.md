@@ -543,7 +543,7 @@ We need to set-up environment variables on your workstation (in my case, my Mac)
   $ export projectid=REPLACE_WITH_YOUR_PROJECT_ID
   ```
   
-  Which in my case is `export projectid=FE-rmeira; echo $projectid`
+  Which in my case is `export projectid=fe-rmeira; echo $projectid`
 
 2. Export your preferred compute region and zone:
 
