@@ -368,7 +368,7 @@ core:
 Pick configuration to use:
  [1] Re-initialize this configuration [default] with new settings 
  [2] Create a new configuration
-Please enter your numeric choice:  1
+Please enter your numeric choice:  1                                      <<< user input is required
 
 Your current configuration has been set to: [default]
 
@@ -384,7 +384,7 @@ Choose the account you would like to use to perform operations for
 this configuration:
  [1] rmeira@pivotal.io
  [2] Log in with a new account
-Please enter your numeric choice:  1
+Please enter your numeric choice:  1                                      <<< user input is required 
 
 You are logged in as: [rmeira@pivotal.io].
 
@@ -392,12 +392,11 @@ Pick cloud project to use:
  [1] fe-rmeira
  [2] pde-greenplum-dev
  [3] Create a new project
-Please enter numeric choice or text value (must exactly match list 
-item):  1
+Please enter numeric choice or text value:  1                             <<< user input is required
 
 Your current project has been set to: [fe-rmeira].
 
-Do you want to configure a default Compute Region and Zone? (Y/n)?  Y
+Do you want to configure a default Compute Region and Zone? (Y/n)?  Y     <<< user input is required
 
 Which Google Compute Engine zone would you like to use as project 
 default?
@@ -449,8 +448,7 @@ with Compute Engine resources, the default is assumed.
  [44] northamerica-northeast1-b
  [45] northamerica-northeast1-c
  [46] Do not set default zone
-Please enter numeric choice or text value (must exactly match list 
-item):  1
+Please enter numeric choice or text value:  1                             <<< user input is required
 
 Your project default Compute Engine zone has been set to [us-east1-b].
 You can change it by running [gcloud config set compute/zone NAME].
