@@ -1,6 +1,6 @@
 variable "projectid" {
     type = "string"
-    default = "REPLACE-WITH-YOUR-GOOGLE-PROJECT-ID"
+    default = "fe-rmeira"
 }
 
 variable "region" {
@@ -10,12 +10,12 @@ variable "region" {
 
 variable "zone-1" {
     type = "string"
-    default = "us-east1-d"
+    default = "us-east1-b"
 }
 
 variable "zone-2" {
     type = "string"
-    default = "us-east1-b"
+    default = "us-east1-c"
 }
 
 variable "name" {
@@ -56,7 +56,7 @@ resource "google_compute_firewall" "bosh-bastion" {
   target_tags = ["bosh-bastion"]
 }
 
-// Allow open access between internal MVs
+// Allow open access between internal VMs
 resource "google_compute_firewall" "bosh-internal" {
   name    = "bosh-internal-${var.name}"
   network = "${google_compute_network.network.name}"
