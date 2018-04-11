@@ -16,15 +16,21 @@ Don't take any action yet. This list was placed here so you can get an idea of t
 * An account on [Google Cloud Platform](https://cloud.google.com/)
 * An account on [Github](https://github.com/)
 * The [Terraform CLI](https://www.terraform.io/intro/index.html) installed on your workstation
+* [Python 2.7.x](https://www.python.org/downloads/) installed on your workstation. The version is important. You need 2.7.x and not 3.x
 * The [gcloud CLI](https://cloud.google.com/sdk/gcloud/) installed on your workstation
 
 We will walk through each one of the items listed above to make sure all the necessary dependencies are in place.
 
 ### Accessing the GCP (Google Cloud Platform) Console 
 To access the GCP Console you need a GCP account at https://cloud.google.com
+
 ![](./gcp-login.png)
+
 Once you are logged in, you should see a GCP Console similar to the example shown below:
+
 ![](./gcp-console.png)
+
+Well done! You have met the 1st pre-requisite.
 
 ### Installation of the Terraform CLI 
 We will need to use the [Terraform](https://www.terraform.io/intro/index.html) CLI from your workstation, so let's verify if `Terraform` is already installed:
@@ -208,27 +214,268 @@ Updating /Users/rmeira/Library/Caches/Homebrew/terraform--golang.org-x-tools--gi
 🍺  /usr/local/Cellar/terraform/0.11.7: 6 files, 80.2MB, built in 2 minutes 56 seconds
 ```
 
+Well done! You have the Terraform CLI installed. Another pre-requisite has been met.
+
+### Installation of Python 2.7
+
+* Pyhton 2.7.x is a pre-requisite for the installation of the gcloud CLI, so you need to check whether you have Python
+
+_using my  Mac_
+```
+$ python -V
+Python 2.7.8
+```
+
+Lucky me, I already have a good version of Python 2.7.x
+
+* If you don't have Python 2.7.x, you will need to download it from https://www.python.org/downloads/ and follow the instructions to install it.
+
 ### Installation gcloud CLI on your GCP account
-* 
 
-* You must have the `gcloud` CLI installed on your workstation. Download it from [cloud.google.com/sdk](https://cloud.google.com/sdk/) and then proceed as follows:
+* In order to control from scripts what goes on in your GCP Account, you must have the `gcloud` CLI installed on your workstation. 
+* Download it from [cloud.google.com/sdk](https://cloud.google.com/sdk/).
+* On a Mac, downloaded files end up at `~/Downloads/`, so I'm going to use Mac's Finder App to unzip the `google-cloud-sdk-194.0.0-darwin-x86_64.tar.gz` file by simply double-clicking on it.
 
+![](./google-cloud-sdk-download.png)
+
+* Per the example shown above, I now have a `~/Downloads/google-cloud-sdk/` directory which I'm going to move over to my `/work/` directory:
+
+_using my  Mac_
 ````
-$ cd /work   # this is where I chose to place my the gcloud CLI software
-$ cp ~/Downloads/google-cloud-sdk-194.0.0-darwin-x86_64.tar.gz .
+$ cd /work                              # this is where I chose to place my the gcloud CLI software
+$ mv ~/Downloads/google-cloud-sdk .
+$ cd google-cloud-sdk/
+$ ls -las
+total 608
+  0 drwxr-xr-x@  21 rmeira  staff     714 Apr  6 11:02 .
+  0 drwxr-xr-x  206 rmeira  staff    7004 Apr 11 12:20 ..
+  0 drwxr-xr-x@  21 rmeira  staff     714 Apr  6 11:02 .install
+  8 -rw-r--r--@   1 rmeira  staff     980 Apr  6 10:57 LICENSE
+  8 -rw-r--r--@   1 rmeira  staff     673 Apr  6 10:57 README
+520 -rw-r--r--@   1 rmeira  staff  262408 Apr  6 10:57 RELEASE_NOTES
+  8 -rw-r--r--@   1 rmeira  staff       8 Apr  6 10:58 VERSION
+  0 drwxr-xr-x@  11 rmeira  staff     374 Apr  6 10:58 bin
+  8 -rw-r--r--@   1 rmeira  staff    2711 Apr  6 10:57 completion.bash.inc
+  8 -rw-r--r--@   1 rmeira  staff    2083 Apr  6 10:57 completion.zsh.inc
+  0 drwxr-xr-x@   3 rmeira  staff     102 Apr  6 11:02 data
+  0 drwxr-xr-x@   3 rmeira  staff     102 Apr  6 11:02 deb
+  8 -rwxr-xr-x@   1 rmeira  staff    1996 Apr  6 10:57 install.bat
+  8 -rwxr-xr-x@   1 rmeira  staff    3701 Apr  6 10:57 install.sh
+  0 drwxr-xr-x@   7 rmeira  staff     238 Apr  6 10:57 lib
+  8 -rw-r--r--@   1 rmeira  staff     324 Apr  6 10:57 path.bash.inc
+  8 -rw-r--r--@   1 rmeira  staff    1210 Apr  6 10:57 path.fish.inc
+  8 -rw-r--r--@   1 rmeira  staff      31 Apr  6 10:57 path.zsh.inc
+  0 drwxr-xr-x@   5 rmeira  staff     170 Apr  6 11:02 platform
+  8 -rw-r--r--@   1 rmeira  staff      39 Apr  6 11:02 properties
+  0 drwxr-xr-x@   3 rmeira  staff     102 Apr  6 11:02 rpm
 ````
-Unzip `google-cloud-sdk-194.0.0-darwin-x86_64.tar.gz` and proceed as follows:
+
+Make sure you are in the correct directory and proceed with the installation:
 ````
 $ cd /work/google-cloud-sdk/
 $ ./install.sh
 ````
+You should see an output similar to the example shown below:
+```
+$ ./install.sh
+Welcome to the Google Cloud SDK!
 
-Using a new Terminal window:
+To help improve the quality of this product, we collect anonymized usage data
+and anonymized stacktraces when crashes are encountered; additional information
+is available at <https://cloud.google.com/sdk/usage-statistics>. You may choose
+to opt out of this collection now (by choosing 'N' at the below prompt), or at
+any time in the future by running the following command:
+
+    gcloud config set disable_usage_reporting true
+
+Do you want to help improve the Google Cloud SDK (Y/n)?  Y
+
+Your current Cloud SDK version is: 197.0.0
+The latest available version is: 197.0.0
+
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                                  Components                                                 │
+├───────────────┬──────────────────────────────────────────────────────┬──────────────────────────┬───────────┤
+│     Status    │                         Name                         │            ID            │    Size   │
+├───────────────┼──────────────────────────────────────────────────────┼──────────────────────────┼───────────┤
+│ Not Installed │ App Engine Go Extensions                             │ app-engine-go            │ 151.3 MiB │
+│ Not Installed │ Cloud Bigtable Command Line Tool                     │ cbt                      │   4.7 MiB │
+│ Not Installed │ Cloud Bigtable Emulator                              │ bigtable                 │   3.8 MiB │
+│ Not Installed │ Cloud Datalab Command Line Tool                      │ datalab                  │   < 1 MiB │
+│ Not Installed │ Cloud Datastore Emulator                             │ cloud-datastore-emulator │  17.9 MiB │
+│ Not Installed │ Cloud Datastore Emulator (Legacy)                    │ gcd-emulator             │  38.1 MiB │
+│ Not Installed │ Cloud Pub/Sub Emulator                               │ pubsub-emulator          │  33.4 MiB │
+│ Not Installed │ Emulator Reverse Proxy                               │ emulator-reverse-proxy   │  14.5 MiB │
+│ Not Installed │ Google Container Local Builder                       │ container-builder-local  │   3.7 MiB │
+│ Not Installed │ Google Container Registry's Docker credential helper │ docker-credential-gcr    │   2.5 MiB │
+│ Not Installed │ gcloud Alpha Commands                                │ alpha                    │   < 1 MiB │
+│ Not Installed │ gcloud Beta Commands                                 │ beta                     │   < 1 MiB │
+│ Not Installed │ gcloud app Java Extensions                           │ app-engine-java          │ 118.9 MiB │
+│ Not Installed │ gcloud app PHP Extensions                            │ app-engine-php           │  21.9 MiB │
+│ Not Installed │ gcloud app Python Extensions                         │ app-engine-python        │   6.2 MiB │
+│ Not Installed │ gcloud app Python Extensions (Extra Libraries)       │ app-engine-python-extras │  27.8 MiB │
+│ Not Installed │ kubectl                                              │ kubectl                  │  12.2 MiB │
+│ Installed     │ BigQuery Command Line Tool                           │ bq                       │   < 1 MiB │
+│ Installed     │ Cloud SDK Core Libraries                             │ core                     │   7.5 MiB │
+│ Installed     │ Cloud Storage Command Line Tool                      │ gsutil                   │   3.4 MiB │
+└───────────────┴──────────────────────────────────────────────────────┴──────────────────────────┴───────────┘
+To install or remove components at your current SDK version [197.0.0], run:
+  $ gcloud components install COMPONENT_ID
+  $ gcloud components remove COMPONENT_ID
+
+To update your SDK installation to the latest version [197.0.0], run:
+  $ gcloud components update
+
+Modify profile to update your $PATH and enable shell command 
+completion?
+
+Do you want to continue (Y/n)?  Y
+
+The Google Cloud SDK installer will now prompt you to update an rc 
+file to bring the Google Cloud CLIs into your environment.
+
+Enter a path to an rc file to update, or leave blank to use 
+[/Users/rmeira/.bash_profile]:  
+No changes necessary for [/Users/rmeira/.bash_profile].
+
+For more information on how to get started, please visit:
+  https://cloud.google.com/sdk/docs/quickstarts
+
+```
+
+Using a new Terminal window on my  Mac, so that any newly created environment variables are taken into account, proceed as follows:
 
 ````
 $ cd /work/google-cloud-sdk/
 $ ./bin/gcloud init
 ````
+
+You should see an output similar to the example shown below. Note that the process is interactive. It will demand inputs to complete successfully. I indicate the places where `<<< user input is required`:
+
+```
+$ ./bin/gcloud init
+Welcome! This command will take you through the configuration of gcloud.
+
+Settings from your current configuration [default] are:
+compute:
+  region: us-east1
+  zone: us-east1-b
+core:
+  account: rmeira@pivotal.io
+  disable_usage_reporting: 'False'
+  project: fe-rmeira
+
+Pick configuration to use:
+ [1] Re-initialize this configuration [default] with new settings 
+ [2] Create a new configuration
+Please enter your numeric choice:  1
+
+Your current configuration has been set to: [default]
+
+You can skip diagnostics next time by using the following flag:
+  gcloud init --skip-diagnostics
+
+Network diagnostic detects and fixes local network connection issues.
+Checking network connection...done.                                                                                                  
+Reachability Check passed.
+Network diagnostic (1/1 checks) passed.
+
+Choose the account you would like to use to perform operations for 
+this configuration:
+ [1] rmeira@pivotal.io
+ [2] Log in with a new account
+Please enter your numeric choice:  1
+
+You are logged in as: [rmeira@pivotal.io].
+
+Pick cloud project to use: 
+ [1] fe-rmeira
+ [2] pde-greenplum-dev
+ [3] Create a new project
+Please enter numeric choice or text value (must exactly match list 
+item):  1
+
+Your current project has been set to: [fe-rmeira].
+
+Do you want to configure a default Compute Region and Zone? (Y/n)?  Y
+
+Which Google Compute Engine zone would you like to use as project 
+default?
+If you do not specify a zone via a command line flag while working 
+with Compute Engine resources, the default is assumed.
+ [1] us-east1-b
+ [2] us-east1-c
+ [3] us-east1-d
+ [4] us-east4-c
+ [5] us-east4-b
+ [6] us-east4-a
+ [7] us-central1-c
+ [8] us-central1-a
+ [9] us-central1-f
+ [10] us-central1-b
+ [11] us-west1-b
+ [12] us-west1-c
+ [13] us-west1-a
+ [14] europe-west4-a
+ [15] europe-west4-b
+ [16] europe-west4-c
+ [17] europe-west1-b
+ [18] europe-west1-d
+ [19] europe-west1-c
+ [20] europe-west3-b
+ [21] europe-west3-c
+ [22] europe-west3-a
+ [23] europe-west2-c
+ [24] europe-west2-b
+ [25] europe-west2-a
+ [26] asia-east1-b
+ [27] asia-east1-a
+ [28] asia-east1-c
+ [29] asia-southeast1-b
+ [30] asia-southeast1-a
+ [31] asia-northeast1-b
+ [32] asia-northeast1-c
+ [33] asia-northeast1-a
+ [34] asia-south1-c
+ [35] asia-south1-b
+ [36] asia-south1-a
+ [37] australia-southeast1-b
+ [38] australia-southeast1-c
+ [39] australia-southeast1-a
+ [40] southamerica-east1-b
+ [41] southamerica-east1-c
+ [42] southamerica-east1-a
+ [43] northamerica-northeast1-a
+ [44] northamerica-northeast1-b
+ [45] northamerica-northeast1-c
+ [46] Do not set default zone
+Please enter numeric choice or text value (must exactly match list 
+item):  1
+
+Your project default Compute Engine zone has been set to [us-east1-b].
+You can change it by running [gcloud config set compute/zone NAME].
+
+Your project default Compute Engine region has been set to [us-east1].
+You can change it by running [gcloud config set compute/region NAME].
+
+Your Google Cloud SDK is configured and ready to use!
+
+* Commands that require authentication will use rmeira@pivotal.io by default
+* Commands will reference project `fe-rmeira` by default
+* Compute Engine commands will use region `us-east1` by default
+* Compute Engine commands will use zone `us-east1-b` by default
+
+Run `gcloud help config` to learn how to change individual settings
+
+This gcloud configuration is called [default]. You can create additional configurations if you work with multiple accounts and/or projects.
+Run `gcloud topic configurations` to learn more.
+
+Some things to try next:
+
+* Run `gcloud --help` to see the Cloud Platform services you can interact with. And run `gcloud help COMMAND` to get help on any gcloud command.
+* Run `gcloud topic -h` to learn about advanced features of the SDK like arg files and output formatting
+```
+
 Let's check what do I have installed:
 ````
 $ gcloud components list
