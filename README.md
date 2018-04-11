@@ -620,6 +620,16 @@ Your current project is [fe-rmeira].  You can change this setting by running:
   $ gcloud iam service-accounts keys create /tmp/terraform-bosh.key.json --iam-account terraform-bosh@${projectid}.iam.gserviceaccount.com
   created key [172691632345678ddd] of type [json] as [/tmp/terraform-bosh.key.json] for [terraform-bosh@fe-rmeira.iam.gserviceaccount.com]
   ```
+  It happened to me, so just to be sure I don't leave you hanging, if you need to delete the terraform-bosh service-account, use the following command:
+  ```
+  $ gcloud iam service-accounts delete terraform-bosh@fe-rmeira.iam.gserviceaccount.com
+You are about to delete service account 
+[terraform-bosh@fe-rmeira.iam.gserviceaccount.com].
+
+Do you want to continue (Y/n)?  Y
+
+deleted service account [terraform-bosh@fe-rmeira.iam.gserviceaccount.com]
+  ```
 
 5. Now let's grant the new service account (which will be used by Terraform) the editor level access to your project:
 
