@@ -552,6 +552,7 @@ We need to set-up environment variables on your workstation (in my case, my Mac)
   $ export zone=us-east1-b
   $ export zone2=us-east1-c
   ```
+  For easy copy-&-paste, I used:  `export region=us-east1; export zone=us-east1-b; export zone2=us-east1-c;`  
   
   Why did I pick, zone2 to be us-east1-c? For no other reason than the fact that us-east1-c should be close to us-east1-b - both being located somewhere around Moncks Corner, a town in South Carolina. You can find additional details about GCP regions, zones and the features of the VMs and storage buckets by accessing https://cloud.google.com/compute/docs/regions-zones/
   
@@ -561,7 +562,7 @@ We need to set-up environment variables on your workstation (in my case, my Mac)
   $ gcloud auth login
   ```
   The command above opens up a browser at `https://cloud.google.com/sdk/auth_success` to authenticate you. 
-  You should see the following output on your Mac Terminal: 
+  You should see the following output on your  Mac terminal: 
   
   ```
   Your browser has been opened to visit:
@@ -578,42 +579,95 @@ Your current project is [fe-rmeira].  You can change this setting by running:
   $ gcloud config set project PROJECT_ID
   ```
   
-  and on the browser window that opens up, you should see:
+  and on the browser window that should have automatically opened up, you should see:
   
   ![](./google-sdk-auth.png)
   
-  Proceed with:
+  Proceed with the following commands to set gcloud target configuration project, zone and region values:
   ```
   $ gcloud config set project ${projectid}
   $ gcloud config set compute/zone ${zone}
   $ gcloud config set compute/region ${region}
   ```
-   
-4. Create a service account and key:
+  For easy copy-&-paste, I used:  `export region=us-east1; export zone=us-east1-b; export zone2=us-east1-c;`  
+    
+  You should see the following output:
+  
+  ```
+  $ gcloud config set project ${projectid}
+  Updated property [core/project].
+  $ gcloud config set compute/zone ${zone}
+  Updated property [compute/zone].
+  $ gcloud config set compute/region ${region}
+  Updated property [compute/region].
+  ```
+     
+4. Now we need to create a service account and key using the following commands:
 
   ```
   $ gcloud iam service-accounts create terraform-bosh
   $ gcloud iam service-accounts keys create /tmp/terraform-bosh.key.json \
       --iam-account terraform-bosh@${projectid}.iam.gserviceaccount.com
   ```
-
-5. Grant the new service account editor access to your project:
-
+  
+  The expected output you should see:
   ```
-  gcloud projects add-iam-policy-binding ${projectid} \
-      --member serviceAccount:terraform-bosh@${projectid}.iam.gserviceaccount.com \
-      --role roles/editor
+  $ gcloud iam service-accounts create terraform-bosh
+  Created service account [terraform-bosh].
   ```
-
-6. Make your service account's key available in an environment variable to be used by `terraform`:
-
+  and
   ```
-  export GOOGLE_CREDENTIALS=$(cat /tmp/terraform-bosh.key.json)
+  $ gcloud iam service-accounts keys create /tmp/terraform-bosh.key.json --iam-account terraform-bosh@${projectid}.iam.gserviceaccount.com
+  created key [172691632345678ddd] of type [json] as [/tmp/terraform-bosh.key.json] for [terraform-bosh@fe-rmeira.iam.gserviceaccount.com]
   ```
 
+5. Now let's grant the new service account editor access to your project:
+
+  ```
+  $ gcloud projects add-iam-policy-binding ${projectid} --member serviceAccount:terraform-bosh@${projectid}.iam.gserviceaccount.com --role roles/editor
+  ```
+  The expected output should be similar to the example below:
+  ```
+  $ gcloud projects add-iam-policy-binding ${projectid} --member serviceAccount:terraform-bosh@${projectid}.iam.gserviceaccount.com --role roles/editor
+bindings:
+- members:
+  - serviceAccount:service-606020681667@container-engine-robot.iam.gserviceaccount.com
+  role: roles/container.serviceAgent
+- members:
+  - serviceAccount:service-606020681667@dataflow-service-producer-prod.iam.gserviceaccount.com
+  role: roles/dataflow.serviceAgent
+- members:
+  - serviceAccount:606020681667-compute@developer.gserviceaccount.com
+  - serviceAccount:606020681667@cloudservices.gserviceaccount.com
+  - serviceAccount:fe-rmeira@appspot.gserviceaccount.com
+  - serviceAccount:service-606020681667@containerregistry.iam.gserviceaccount.com
+  - serviceAccount:terraform-bosh@fe-rmeira.iam.gserviceaccount.com
+  role: roles/editor
+- members:
+  - user:claurence@pivotal.io
+  - user:mrosado@pivotal.io
+  - user:rmeira@pivotal.io
+  - user:tsavage@pivotal.io
+  role: roles/owner
+etag: BwVpmCGKBpw=
+version: 1
+  ```
+
+6. Let's make your service account's key available in an environment variable to be used by `terraform`:
+
+  ```
+  $ export GOOGLE_CREDENTIALS=$(cat /tmp/terraform-bosh.key.json)
+  ```
+  You can check the contents of GOOGLE_CREDENTIALS as follows:
+  ```
+  $ echo $GOOGLE_CREDENTIALS
+{ "type": "service_account", "project_id": "fe-rmeira", "private_key_id": "17269656872577741121e63a90b72f28ff9a0ddd", "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDOeznJfMSp6sPr\n3Hum+VwnZ+5FDuwFGU5EbW0bLhnmpK44f0h2w/kSMe3qebZPyTqqbtUaJ5wfuuZ2\nzdU7K3jTbf2Y1mFNlGkGAzXKHAEIuNp/O6hfXRMdOmQoNUR1Yx3ySRvhszm4fHnE\ngjrxNHI5nSQjlpHLDTtamolrRysWFefyjQM+JlKF5fKZO4XmEZlIOjowKrMQSlrw\nnGLge5an9wYHQGfkwVVjELHr9NtDQTLVN/C3icc9WF4VMi+7D2kjNzNpU0H7qibM\n92kxg728L77R/2tBXdmG7lPqk3ZZPbGoTEO5ZSi8G/6Ui3I30gyGnoejL73M8ZQx\nGAhMQG0XAgMBAAEC...
+\nwELmGUROcvRkwS1EBHTA9sAeRf1hn7B7ZkXDys7xuK4ZJiswA1/L6iKi8dXfkzgs\nz9QVi8uPvN1dv1aWJbVC5yuG1Ll3bFTXfx7miBszwvPdgvbqXDRAs+AhoYEsmatR\nQSNFAyDRoJeM+2NPCPSRpK9U\n-----END PRIVATE KEY-----\n", "client_email": "terraform-bosh@fe-rmeira.iam.gserviceaccount.com", "client_id": "111780899105249296126", "auth_uri": "https://accounts.google.com/o/oauth2/auth", "token_uri": "https://accounts.google.com/o/oauth2/token", "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs", "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/terraform-bosh%40fe-rmeira.iam.gserviceaccount.com" }
+  ```
+  
 ### Create required infrastructure with Terraform
 
-1. Download [main.tf](main.tf) and [concourse.tf](concourse.tf) from this repository.
+1. Download [main.tf](main.tf) and [concourse.tf](concourse.tf) from this repository. And take a look at each one of these files.
 
 2. In a terminal from the same directory where the two `.tf` files are located, execute `terraform init` and then view the Terraform execution plan to see the resources that will be created:
 
