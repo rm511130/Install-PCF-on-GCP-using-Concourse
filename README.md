@@ -978,6 +978,488 @@ can't guarantee that exactly these actions will be performed if
   ```
   terraform apply -var projectid=${projectid} -var region=${region} -var zone-1=${zone} -var zone-2=${zone2}
   ```
+  
+  You should see an output similar the example shown below:
+  
+  ```
+  $ terraform apply -var projectid=${projectid} -var region=${region} -var zone-1=${zone} -var zone-2=${zone2}
+
+An execution plan has been generated and is shown below.
+Resource actions are indicated with the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  + google_compute_address.concourse
+      id:                                                  <computed>
+      address:                                             <computed>
+      address_type:                                        "EXTERNAL"
+      name:                                                "concourse"
+      project:                                             <computed>
+      region:                                              <computed>
+      self_link:                                           <computed>
+
+  + google_compute_firewall.bosh-bastion
+      id:                                                  <computed>
+      allow.#:                                             "2"
+      allow.1367131964.ports.#:                            "0"
+      allow.1367131964.protocol:                           "icmp"
+      allow.803338340.ports.#:                             "1"
+      allow.803338340.ports.0:                             "22"
+      allow.803338340.protocol:                            "tcp"
+      destination_ranges.#:                                <computed>
+      direction:                                           <computed>
+      name:                                                "bosh-bastion-concourse"
+      network:                                             "concourse"
+      priority:                                            "1000"
+      project:                                             <computed>
+      self_link:                                           <computed>
+      source_ranges.#:                                     <computed>
+      target_tags.#:                                       "1"
+      target_tags.1860295641:                              "bosh-bastion"
+
+  + google_compute_firewall.bosh-internal
+      id:                                                  <computed>
+      allow.#:                                             "3"
+      allow.1367131964.ports.#:                            "0"
+      allow.1367131964.protocol:                           "icmp"
+      allow.1486604749.ports.#:                            "0"
+      allow.1486604749.protocol:                           "udp"
+      allow.3848845357.ports.#:                            "0"
+      allow.3848845357.protocol:                           "tcp"
+      destination_ranges.#:                                <computed>
+      direction:                                           <computed>
+      name:                                                "bosh-internal-concourse"
+      network:                                             "concourse"
+      priority:                                            "1000"
+      project:                                             <computed>
+      self_link:                                           <computed>
+      source_ranges.#:                                     <computed>
+      source_tags.#:                                       "1"
+      source_tags.2206338310:                              "bosh-internal"
+      target_tags.#:                                       "1"
+      target_tags.2206338310:                              "bosh-internal"
+
+  + google_compute_firewall.concourse-internal
+      id:                                                  <computed>
+      allow.#:                                             "3"
+      allow.1367131964.ports.#:                            "0"
+      allow.1367131964.protocol:                           "icmp"
+      allow.1486604749.ports.#:                            "0"
+      allow.1486604749.protocol:                           "udp"
+      allow.3848845357.ports.#:                            "0"
+      allow.3848845357.protocol:                           "tcp"
+      destination_ranges.#:                                <computed>
+      direction:                                           <computed>
+      name:                                                "concourse-internal"
+      network:                                             "concourse"
+      priority:                                            "1000"
+      project:                                             <computed>
+      self_link:                                           <computed>
+      source_ranges.#:                                     <computed>
+      source_tags.#:                                       "2"
+      source_tags.1832082793:                              "concourse-internal"
+      source_tags.2206338310:                              "bosh-internal"
+      target_tags.#:                                       "2"
+      target_tags.1832082793:                              "concourse-internal"
+      target_tags.2206338310:                              "bosh-internal"
+
+  + google_compute_firewall.concourse-public
+      id:                                                  <computed>
+      allow.#:                                             "1"
+      allow.3387774561.ports.#:                            "4"
+      allow.3387774561.ports.0:                            "80"
+      allow.3387774561.ports.1:                            "8080"
+      allow.3387774561.ports.2:                            "443"
+      allow.3387774561.ports.3:                            "4443"
+      allow.3387774561.protocol:                           "tcp"
+      destination_ranges.#:                                <computed>
+      direction:                                           <computed>
+      name:                                                "concourse-public"
+      network:                                             "concourse"
+      priority:                                            "1000"
+      project:                                             <computed>
+      self_link:                                           <computed>
+      source_ranges.#:                                     "1"
+      source_ranges.1080289494:                            "0.0.0.0/0"
+      target_tags.#:                                       "1"
+      target_tags.1288521255:                              "concourse-public"
+
+  + google_compute_forwarding_rule.concourse-http-forwarding-rule
+      id:                                                  <computed>
+      ip_address:                                          "${google_compute_address.concourse.address}"
+      ip_protocol:                                         "TCP"
+      load_balancing_scheme:                               "EXTERNAL"
+      name:                                                "concourse-http-forwarding-rule"
+      port_range:                                          "80-80"
+      project:                                             <computed>
+      region:                                              <computed>
+      self_link:                                           <computed>
+      subnetwork:                                          <computed>
+      target:                                              "${google_compute_target_pool.concourse-target-pool.self_link}"
+
+  + google_compute_forwarding_rule.concourse-https-forwarding-rule
+      id:                                                  <computed>
+      ip_address:                                          "${google_compute_address.concourse.address}"
+      ip_protocol:                                         "TCP"
+      load_balancing_scheme:                               "EXTERNAL"
+      name:                                                "concourse-https-forwarding-rule"
+      port_range:                                          "443-443"
+      project:                                             <computed>
+      region:                                              <computed>
+      self_link:                                           <computed>
+      subnetwork:                                          <computed>
+      target:                                              "${google_compute_target_pool.concourse-target-pool.self_link}"
+
+  + google_compute_instance.bosh-bastion
+      id:                                                  <computed>
+      boot_disk.#:                                         "1"
+      boot_disk.0.auto_delete:                             "true"
+      boot_disk.0.device_name:                             <computed>
+      boot_disk.0.disk_encryption_key_sha256:              <computed>
+      boot_disk.0.initialize_params.#:                     "1"
+      boot_disk.0.initialize_params.0.image:               "ubuntu-1404-trusty-v20180122"
+      boot_disk.0.initialize_params.0.size:                <computed>
+      boot_disk.0.initialize_params.0.type:                <computed>
+      can_ip_forward:                                      "false"
+      cpu_platform:                                        <computed>
+      create_timeout:                                      "4"
+      deletion_protection:                                 "false"
+      guest_accelerator.#:                                 <computed>
+      instance_id:                                         <computed>
+      label_fingerprint:                                   <computed>
+      machine_type:                                        "n1-standard-1"
+      metadata_fingerprint:                                <computed>
+      metadata_startup_script:                             "#!/bin/bash\napt-get update -y\napt-get install -y build-essential zlibc zlib1g-dev ruby ruby-dev openssl libxslt-dev libxml2-dev libssl-dev libreadline6 libreadline6-dev libyaml-dev libsqlite3-dev sqlite3\ngem install bosh_cli\ncurl -o /tmp/cf.tgz https://s3.amazonaws.com/go-cli/releases/v6.20.0/cf-cli_6.20.0_linux_x86-64.tgz\ntar -zxvf /tmp/cf.tgz && mv cf /usr/bin/cf && chmod +x /usr/bin/cf\ncurl -o /usr/bin/bosh-init https://s3.amazonaws.com/bosh-init-artifacts/bosh-init-0.0.96-linux-amd64\nchmod +x /usr/bin/bosh-init\n"
+      name:                                                "bosh-bastion-concourse"
+      network_interface.#:                                 "1"
+      network_interface.0.access_config.#:                 "1"
+      network_interface.0.access_config.0.assigned_nat_ip: <computed>
+      network_interface.0.access_config.0.nat_ip:          <computed>
+      network_interface.0.address:                         <computed>
+      network_interface.0.name:                            <computed>
+      network_interface.0.network_ip:                      <computed>
+      network_interface.0.subnetwork:                      "bosh-concourse-us-east1"
+      network_interface.0.subnetwork_project:              <computed>
+      project:                                             <computed>
+      scheduling.#:                                        <computed>
+      self_link:                                           <computed>
+      service_account.#:                                   "1"
+      service_account.0.email:                             <computed>
+      service_account.0.scopes.#:                          "1"
+      service_account.0.scopes.1733087937:                 "https://www.googleapis.com/auth/cloud-platform"
+      tags.#:                                              "2"
+      tags.1860295641:                                     "bosh-bastion"
+      tags.2206338310:                                     "bosh-internal"
+      tags_fingerprint:                                    <computed>
+      zone:                                                "us-east1-b"
+
+  + google_compute_network.network
+      id:                                                  <computed>
+      auto_create_subnetworks:                             "true"
+      gateway_ipv4:                                        <computed>
+      name:                                                "concourse"
+      project:                                             <computed>
+      routing_mode:                                        <computed>
+      self_link:                                           <computed>
+
+  + google_compute_subnetwork.bosh-subnet-1
+      id:                                                  <computed>
+      fingerprint:                                         <computed>
+      gateway_address:                                     <computed>
+      ip_cidr_range:                                       "10.0.0.0/24"
+      name:                                                "bosh-concourse-us-east1"
+      network:                                             "${google_compute_network.network.self_link}"
+      project:                                             <computed>
+      region:                                              <computed>
+      self_link:                                           <computed>
+
+  + google_compute_subnetwork.concourse-public-subnet-1
+      id:                                                  <computed>
+      fingerprint:                                         <computed>
+      gateway_address:                                     <computed>
+      ip_cidr_range:                                       "10.120.0.0/16"
+      name:                                                "concourse-public-us-east1-1"
+      network:                                             "${google_compute_network.network.self_link}"
+      project:                                             <computed>
+      region:                                              <computed>
+      self_link:                                           <computed>
+
+  + google_compute_subnetwork.concourse-public-subnet-2
+      id:                                                  <computed>
+      fingerprint:                                         <computed>
+      gateway_address:                                     <computed>
+      ip_cidr_range:                                       "10.121.0.0/16"
+      name:                                                "concourse-public-us-east1-2"
+      network:                                             "${google_compute_network.network.self_link}"
+      project:                                             <computed>
+      region:                                              <computed>
+      self_link:                                           <computed>
+
+  + google_compute_target_pool.concourse-target-pool
+      id:                                                  <computed>
+      instances.#:                                         <computed>
+      name:                                                "concourse-target-pool"
+      project:                                             <computed>
+      region:                                              <computed>
+      self_link:                                           <computed>
+      session_affinity:                                    "NONE"
+
+
+Plan: 13 to add, 0 to change, 0 to destroy.
+
+Do you want to perform these actions?
+  Terraform will perform the actions described above.
+  Only 'yes' will be accepted to approve.
+
+  Enter a value: yes
+
+google_compute_address.concourse: Creating...
+  address:      "" => "<computed>"
+  address_type: "" => "EXTERNAL"
+  name:         "" => "concourse"
+  project:      "" => "<computed>"
+  region:       "" => "<computed>"
+  self_link:    "" => "<computed>"
+google_compute_target_pool.concourse-target-pool: Creating...
+  instances.#:      "" => "<computed>"
+  name:             "" => "concourse-target-pool"
+  project:          "" => "<computed>"
+  region:           "" => "<computed>"
+  self_link:        "" => "<computed>"
+  session_affinity: "" => "NONE"
+google_compute_network.network: Creating...
+  auto_create_subnetworks: "" => "true"
+  gateway_ipv4:            "" => "<computed>"
+  name:                    "" => "concourse"
+  project:                 "" => "<computed>"
+  routing_mode:            "" => "<computed>"
+  self_link:               "" => "<computed>"
+google_compute_network.network: Still creating... (10s elapsed)
+google_compute_address.concourse: Still creating... (10s elapsed)
+google_compute_target_pool.concourse-target-pool: Still creating... (10s elapsed)
+google_compute_address.concourse: Creation complete after 13s (ID: projects/fe-rmeira/regions/us-east1/addresses/concourse)
+google_compute_target_pool.concourse-target-pool: Creation complete after 13s (ID: concourse-target-pool)
+google_compute_forwarding_rule.concourse-https-forwarding-rule: Creating...
+  ip_address:            "" => "35.196.40.28"
+  ip_protocol:           "" => "TCP"
+  load_balancing_scheme: "" => "EXTERNAL"
+  name:                  "" => "concourse-https-forwarding-rule"
+  port_range:            "" => "443-443"
+  project:               "" => "<computed>"
+  region:                "" => "<computed>"
+  self_link:             "" => "<computed>"
+  subnetwork:            "" => "<computed>"
+  target:                "" => "https://www.googleapis.com/compute/v1/projects/fe-rmeira/regions/us-east1/targetPools/concourse-target-pool"
+google_compute_forwarding_rule.concourse-http-forwarding-rule: Creating...
+  ip_address:            "" => "35.196.40.28"
+  ip_protocol:           "" => "TCP"
+  load_balancing_scheme: "" => "EXTERNAL"
+  name:                  "" => "concourse-http-forwarding-rule"
+  port_range:            "" => "80-80"
+  project:               "" => "<computed>"
+  region:                "" => "<computed>"
+  self_link:             "" => "<computed>"
+  subnetwork:            "" => "<computed>"
+  target:                "" => "https://www.googleapis.com/compute/v1/projects/fe-rmeira/regions/us-east1/targetPools/concourse-target-pool"
+google_compute_network.network: Still creating... (20s elapsed)
+google_compute_forwarding_rule.concourse-https-forwarding-rule: Still creating... (10s elapsed)
+google_compute_forwarding_rule.concourse-http-forwarding-rule: Still creating... (10s elapsed)
+google_compute_forwarding_rule.concourse-https-forwarding-rule: Creation complete after 12s (ID: concourse-https-forwarding-rule)
+google_compute_forwarding_rule.concourse-http-forwarding-rule: Creation complete after 13s (ID: concourse-http-forwarding-rule)
+google_compute_network.network: Still creating... (30s elapsed)
+google_compute_network.network: Creation complete after 38s (ID: concourse)
+google_compute_subnetwork.concourse-public-subnet-1: Creating...
+  fingerprint:     "" => "<computed>"
+  gateway_address: "" => "<computed>"
+  ip_cidr_range:   "" => "10.120.0.0/16"
+  name:            "" => "concourse-public-us-east1-1"
+  network:         "" => "https://www.googleapis.com/compute/v1/projects/fe-rmeira/global/networks/concourse"
+  project:         "" => "<computed>"
+  region:          "" => "<computed>"
+  self_link:       "" => "<computed>"
+google_compute_subnetwork.bosh-subnet-1: Creating...
+  fingerprint:     "" => "<computed>"
+  gateway_address: "" => "<computed>"
+  ip_cidr_range:   "" => "10.0.0.0/24"
+  name:            "" => "bosh-concourse-us-east1"
+  network:         "" => "https://www.googleapis.com/compute/v1/projects/fe-rmeira/global/networks/concourse"
+  project:         "" => "<computed>"
+  region:          "" => "<computed>"
+  self_link:       "" => "<computed>"
+google_compute_firewall.concourse-internal: Creating...
+  allow.#:                   "" => "3"
+  allow.1367131964.ports.#:  "" => "0"
+  allow.1367131964.protocol: "" => "icmp"
+  allow.1486604749.ports.#:  "" => "0"
+  allow.1486604749.protocol: "" => "udp"
+  allow.3848845357.ports.#:  "" => "0"
+  allow.3848845357.protocol: "" => "tcp"
+  destination_ranges.#:      "" => "<computed>"
+  direction:                 "" => "<computed>"
+  name:                      "" => "concourse-internal"
+  network:                   "" => "concourse"
+  priority:                  "" => "1000"
+  project:                   "" => "<computed>"
+  self_link:                 "" => "<computed>"
+  source_ranges.#:           "" => "<computed>"
+  source_tags.#:             "" => "2"
+  source_tags.1832082793:    "" => "concourse-internal"
+  source_tags.2206338310:    "" => "bosh-internal"
+  target_tags.#:             "" => "2"
+  target_tags.1832082793:    "" => "concourse-internal"
+  target_tags.2206338310:    "" => "bosh-internal"
+google_compute_subnetwork.concourse-public-subnet-2: Creating...
+  fingerprint:     "" => "<computed>"
+  gateway_address: "" => "<computed>"
+  ip_cidr_range:   "" => "10.121.0.0/16"
+  name:            "" => "concourse-public-us-east1-2"
+  network:         "" => "https://www.googleapis.com/compute/v1/projects/fe-rmeira/global/networks/concourse"
+  project:         "" => "<computed>"
+  region:          "" => "<computed>"
+  self_link:       "" => "<computed>"
+google_compute_firewall.concourse-public: Creating...
+  allow.#:                   "" => "1"
+  allow.3387774561.ports.#:  "" => "4"
+  allow.3387774561.ports.0:  "" => "80"
+  allow.3387774561.ports.1:  "" => "8080"
+  allow.3387774561.ports.2:  "" => "443"
+  allow.3387774561.ports.3:  "" => "4443"
+  allow.3387774561.protocol: "" => "tcp"
+  destination_ranges.#:      "" => "<computed>"
+  direction:                 "" => "<computed>"
+  name:                      "" => "concourse-public"
+  network:                   "" => "concourse"
+  priority:                  "" => "1000"
+  project:                   "" => "<computed>"
+  self_link:                 "" => "<computed>"
+  source_ranges.#:           "" => "1"
+  source_ranges.1080289494:  "" => "0.0.0.0/0"
+  target_tags.#:             "" => "1"
+  target_tags.1288521255:    "" => "concourse-public"
+google_compute_firewall.bosh-bastion: Creating...
+  allow.#:                   "" => "2"
+  allow.1367131964.ports.#:  "" => "0"
+  allow.1367131964.protocol: "" => "icmp"
+  allow.803338340.ports.#:   "" => "1"
+  allow.803338340.ports.0:   "" => "22"
+  allow.803338340.protocol:  "" => "tcp"
+  destination_ranges.#:      "" => "<computed>"
+  direction:                 "" => "<computed>"
+  name:                      "" => "bosh-bastion-concourse"
+  network:                   "" => "concourse"
+  priority:                  "" => "1000"
+  project:                   "" => "<computed>"
+  self_link:                 "" => "<computed>"
+  source_ranges.#:           "" => "<computed>"
+  target_tags.#:             "" => "1"
+  target_tags.1860295641:    "" => "bosh-bastion"
+google_compute_firewall.bosh-internal: Creating...
+  allow.#:                   "" => "3"
+  allow.1367131964.ports.#:  "" => "0"
+  allow.1367131964.protocol: "" => "icmp"
+  allow.1486604749.ports.#:  "" => "0"
+  allow.1486604749.protocol: "" => "udp"
+  allow.3848845357.ports.#:  "" => "0"
+  allow.3848845357.protocol: "" => "tcp"
+  destination_ranges.#:      "" => "<computed>"
+  direction:                 "" => "<computed>"
+  name:                      "" => "bosh-internal-concourse"
+  network:                   "" => "concourse"
+  priority:                  "" => "1000"
+  project:                   "" => "<computed>"
+  self_link:                 "" => "<computed>"
+  source_ranges.#:           "" => "<computed>"
+  source_tags.#:             "" => "1"
+  source_tags.2206338310:    "" => "bosh-internal"
+  target_tags.#:             "" => "1"
+  target_tags.2206338310:    "" => "bosh-internal"
+google_compute_subnetwork.bosh-subnet-1: Still creating... (10s elapsed)
+google_compute_firewall.concourse-public: Still creating... (10s elapsed)
+google_compute_subnetwork.concourse-public-subnet-1: Still creating... (10s elapsed)
+google_compute_firewall.concourse-internal: Still creating... (10s elapsed)
+google_compute_subnetwork.concourse-public-subnet-2: Still creating... (10s elapsed)
+google_compute_firewall.bosh-bastion: Still creating... (10s elapsed)
+google_compute_firewall.bosh-internal: Still creating... (10s elapsed)
+google_compute_firewall.concourse-internal: Creation complete after 11s (ID: concourse-internal)
+google_compute_firewall.bosh-bastion: Creation complete after 13s (ID: bosh-bastion-concourse)
+google_compute_firewall.concourse-public: Creation complete after 13s (ID: concourse-public)
+google_compute_firewall.bosh-internal: Creation complete after 14s (ID: bosh-internal-concourse)
+google_compute_subnetwork.concourse-public-subnet-1: Creation complete after 17s (ID: us-east1/concourse-public-us-east1-1)
+google_compute_subnetwork.concourse-public-subnet-2: Creation complete after 18s (ID: us-east1/concourse-public-us-east1-2)
+google_compute_subnetwork.bosh-subnet-1: Creation complete after 18s (ID: us-east1/bosh-concourse-us-east1)
+google_compute_instance.bosh-bastion: Creating...
+  boot_disk.#:                                         "" => "1"
+  boot_disk.0.auto_delete:                             "" => "true"
+  boot_disk.0.device_name:                             "" => "<computed>"
+  boot_disk.0.disk_encryption_key_sha256:              "" => "<computed>"
+  boot_disk.0.initialize_params.#:                     "" => "1"
+  boot_disk.0.initialize_params.0.image:               "" => "ubuntu-1404-trusty-v20180122"
+  boot_disk.0.initialize_params.0.size:                "" => "<computed>"
+  boot_disk.0.initialize_params.0.type:                "" => "<computed>"
+  can_ip_forward:                                      "" => "false"
+  cpu_platform:                                        "" => "<computed>"
+  create_timeout:                                      "" => "4"
+  deletion_protection:                                 "" => "false"
+  guest_accelerator.#:                                 "" => "<computed>"
+  instance_id:                                         "" => "<computed>"
+  label_fingerprint:                                   "" => "<computed>"
+  machine_type:                                        "" => "n1-standard-1"
+  metadata_fingerprint:                                "" => "<computed>"
+  metadata_startup_script:                             "" => "#!/bin/bash\napt-get update -y\napt-get install -y build-essential zlibc zlib1g-dev ruby ruby-dev openssl libxslt-dev libxml2-dev libssl-dev libreadline6 libreadline6-dev libyaml-dev libsqlite3-dev sqlite3\ngem install bosh_cli\ncurl -o /tmp/cf.tgz https://s3.amazonaws.com/go-cli/releases/v6.20.0/cf-cli_6.20.0_linux_x86-64.tgz\ntar -zxvf /tmp/cf.tgz && mv cf /usr/bin/cf && chmod +x /usr/bin/cf\ncurl -o /usr/bin/bosh-init https://s3.amazonaws.com/bosh-init-artifacts/bosh-init-0.0.96-linux-amd64\nchmod +x /usr/bin/bosh-init\n"
+  name:                                                "" => "bosh-bastion-concourse"
+  network_interface.#:                                 "" => "1"
+  network_interface.0.access_config.#:                 "" => "1"
+  network_interface.0.access_config.0.assigned_nat_ip: "" => "<computed>"
+  network_interface.0.access_config.0.nat_ip:          "" => "<computed>"
+  network_interface.0.address:                         "" => "<computed>"
+  network_interface.0.name:                            "" => "<computed>"
+  network_interface.0.network_ip:                      "" => "<computed>"
+  network_interface.0.subnetwork:                      "" => "bosh-concourse-us-east1"
+  network_interface.0.subnetwork_project:              "" => "<computed>"
+  project:                                             "" => "<computed>"
+  scheduling.#:                                        "" => "<computed>"
+  self_link:                                           "" => "<computed>"
+  service_account.#:                                   "" => "1"
+  service_account.0.email:                             "" => "<computed>"
+  service_account.0.scopes.#:                          "" => "1"
+  service_account.0.scopes.1733087937:                 "" => "https://www.googleapis.com/auth/cloud-platform"
+  tags.#:                                              "" => "2"
+  tags.1860295641:                                     "" => "bosh-bastion"
+  tags.2206338310:                                     "" => "bosh-internal"
+  tags_fingerprint:                                    "" => "<computed>"
+  zone:                                                "" => "us-east1-b"
+google_compute_instance.bosh-bastion: Still creating... (10s elapsed)
+google_compute_instance.bosh-bastion: Creation complete after 12s (ID: bosh-bastion-concourse)
+
+Apply complete! Resources: 13 added, 0 changed, 0 destroyed.
+  ```
+
+# Recap of what just happened
+
+At this point you have successfully created a `bosh-bastion-concourse` VM in GCE.
+
+![](./bosh-bastion-created.png)
+
+The `bosh-bastion-concourse` is a Ubuntu 14.04 VM where Terraform executed the following script which can be found in the `main.tf` file:
+
+```
+#!/bin/bash
+apt-get update -y
+apt-get install -y build-essential zlibc zlib1g-dev ruby ruby-dev openssl libxslt-dev libxml2-dev libssl-dev libreadline6 libreadline6-dev libyaml-dev libsqlite3-dev sqlite3
+gem install bosh_cli
+curl -o /tmp/cf.tgz https://s3.amazonaws.com/go-cli/releases/v6.20.0/cf-cli_6.20.0_linux_x86-64.tgz
+tar -zxvf /tmp/cf.tgz && mv cf /usr/bin/cf && chmod +x /usr/bin/cf
+curl -o /usr/bin/bosh-init https://s3.amazonaws.com/bosh-init-artifacts/bosh-init-0.0.96-linux-amd64
+chmod +x /usr/bin/bosh-init
+```
+
+Consequently, the `bosh-bastion-concourse` VM has the Bosh CLI, the CF CLI, and Bosh-Init installed.
+
+
+
+
+
 
 ### Deploy a BOSH Director
 
