@@ -1437,11 +1437,11 @@ Apply complete! Resources: 13 added, 0 changed, 0 destroyed.
 
 # Recap of what just happened
 
-At this point you have successfully created a `bosh-bastion-concourse` VM in GCE.
+At this point Terraform has successfully created a `bosh-bastion-concourse` VM in GCE.
 
 ![](./bosh-bastion-created.png)
 
-The `bosh-bastion-concourse` is a Ubuntu 14.04 VM where Terraform executed the following script which can be found in the `main.tf` file:
+The `bosh-bastion-concourse` is a Ubuntu 14.04 VM where the following script, contained in `main.tf`, was executed.
 
 ```
 #!/bin/bash
@@ -1454,7 +1454,25 @@ curl -o /usr/bin/bosh-init https://s3.amazonaws.com/bosh-init-artifacts/bosh-ini
 chmod +x /usr/bin/bosh-init
 ```
 
-Consequently, the `bosh-bastion-concourse` VM has the Bosh CLI, the CF CLI, and Bosh-Init installed.
+Consequently, the `bosh-bastion-concourse` VM has the `Bosh CLI`, the `CF CLI`, and `Bosh-Init` installed.
+
+Looking across the GCP Console, we can see that Terraform was responsible for the creation of:
+
+- An ephemeral external IP address 35.196.2.112 and a primary IP address of 10.0.0.2 for the `bosh-bastion-concourse` VM
+- The `bosh-bastion-concourse` VM is a 1vCPU 3.75GB RAM machine with 10GB of persistent SSD attached.
+- A `bosh-concourse-us-east1    ` subnet with CIDR	 10.0.0.0/24 and Gateway IP   10.0.0.1 in the us-east1 region
+- A `concourse-public-us-east1-1` subnet with CIDR 10.120.0.0/16 and Gateway IP 10.120.0.1 in the us-east1 region
+- A `concourse-public-us-east1-2` subnet with CIDR 10.121.0.0/16 and Gateway IP 10.121.0.1 in the us-east1 region
+- A `concourse                  ` subnet with CIDR 10.142.0.0/20 and Gateway IP 10.142.0.1 in the us-east1 region
+- Another 15 `concourse         ` subnets with CIDRs 10.x.0.0/20 and respective Gateways in the other regions
+  These 15 subnets were probably created because the `concourse` VPC was created using Subnet creation mode set to `Auto subnets`
+- Firewall rules that allow SSH (TCP port 22) access to the `bosh-bastion-concourse` VM
+- Firewall rules that allow communication through ports 80, 8080, 443 and 4443 to the Concourse subnets
+- A `concourse-target-pool` load-balancer with an external IP address frontend at 35.196.40.28 open to ports 80 and 443
+
+
+
+
 
 
 
