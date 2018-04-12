@@ -1455,12 +1455,13 @@ chmod +x /usr/bin/bosh-init
 ```
 
 Consequently, the `bosh-bastion-concourse` VM has the `Bosh CLI`, the `CF CLI`, and `Bosh-Init` installed.
+This `bosh-bastion-concourse` VM is a 1vCPU 3.75GB RAM machine with 10GB of persistent SSD attached.
 
 Looking across the GCP Console, we can see that Terraform was responsible for the creation of:
 
-- An ephemeral external IP address 35.196.2.112 and a primary IP address of 10.0.0.2 for the `bosh-bastion-concourse` VM
-- The `bosh-bastion-concourse` VM is a 1vCPU 3.75GB RAM machine with 10GB of persistent SSD attached.
+- An ephemeral external IP address 35.196.2.112 and a primary IP 10.0.0.2 for the `bosh-bastion-concourse` VM
 - A `bosh-concourse-us-east1    ` subnet with CIDR	 10.0.0.0/24 and Gateway IP   10.0.0.1 in the us-east1 region
+  This is the subnet that will be used by the Bosh Director nad its workers.
 - A `concourse-public-us-east1-1` subnet with CIDR 10.120.0.0/16 and Gateway IP 10.120.0.1 in the us-east1 region
 - A `concourse-public-us-east1-2` subnet with CIDR 10.121.0.0/16 and Gateway IP 10.121.0.1 in the us-east1 region
 - A `concourse                  ` subnet with CIDR 10.142.0.0/20 and Gateway IP 10.142.0.1 in the us-east1 region
