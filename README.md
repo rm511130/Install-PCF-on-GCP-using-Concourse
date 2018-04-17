@@ -228,8 +228,6 @@ Updating /Users/rmeira/Library/Caches/Homebrew/terraform--golang.org-x-tools--gi
 </details>
 
 
-Well done! You have the Terraform CLI installed. Another pre-requisite has been met.
-
 ### Installation of Python 2.7
 
 * Pyhton 2.7.x is a pre-requisite for the installation of the gcloud CLI, so you need to check whether you have Python
