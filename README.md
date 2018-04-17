@@ -10,7 +10,7 @@ Notes:
 We will deploy a BOSH director v1.x as part of these instructions. This Bosh Director will be dedicated to monitor and manage the health of the Concourse installation and it should not be used for a PCF deployment. We will need a separate BOSH v2.x to install PCF.
 
 <details>
-  <summary>Click to see a Bosh-Director diagram:</summary>
+  <summary>Click here to see a Bosh-Director diagram:</summary>
 
 ![](./Bosh-Director.png)
 
@@ -29,6 +29,9 @@ We will walk through each one of the items listed above to make sure all the nec
 ### Accessing the GCP (Google Cloud Platform) Console 
 To access the GCP Console you need a GCP account at https://cloud.google.com
 
+<details>
+  <summary>Click here to visualize GCP Console examples:</summary>
+
 ![](./gcp-login.png)
 
 Once you are logged in, you should see a GCP Console similar to the example shown below:
@@ -36,6 +39,8 @@ Once you are logged in, you should see a GCP Console similar to the example show
 ![](./gcp-console.png)
 
 Well done! You have met the 1st pre-requisite.
+
+</details>
 
 ### Installation of the Terraform CLI 
 We will need to use the [Terraform](https://www.terraform.io/intro/index.html) CLI from your workstation, so let's verify if `Terraform` is already installed:
@@ -46,9 +51,7 @@ Terraform v0.11.7
 If you don't already have `Terraform` you can download and unzip [Terraform](https://www.terraform.io/downloads.html) to a directory of your chosing and then symlink the terraform executable to your `/usr/bin`. If you use `Brew` You can `brew install terraform` or `brew upgrade terraform` depending on whether or not you already have it installed.
 
 <details>
-  <summary>Click to expand</summary>
-
-Here's what happened on my  Mac when I executed `brew upgrade terraform`:
+  <summary>Click here to see what happened on my  Mac when I executed a brew command:</summary>
 
 ```
 $ brew upgrade terraform
@@ -221,8 +224,9 @@ Updating /Users/rmeira/Library/Caches/Homebrew/terraform--golang.org-x-tools--gi
 ==> make test bin
 🍺  /usr/local/Cellar/terraform/0.11.7: 6 files, 80.2MB, built in 2 minutes 56 seconds
 ```
-  whatever
+  
 </details>
+
 
 Well done! You have the Terraform CLI installed. Another pre-requisite has been met.
 
