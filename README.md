@@ -30,7 +30,7 @@ We will walk through each one of the items listed above to make sure all the nec
 To access the GCP Console you need a GCP account at https://cloud.google.com
 
 <details>
-  <summary>Click here to visualize GCP Console examples:</summary>
+  <summary>Click here to visualize examples of the GCP Console:</summary>
 
 ![](./gcp-login.png)
 
@@ -289,7 +289,11 @@ Make sure you are in the correct directory and proceed with the installation:
 $ cd /work/google-cloud-sdk/
 $ ./install.sh
 ````
-You should see an output similar to the example shown below:
+
+<details>
+  <summary>Click here to see an example of the execution of ./install.sh:</summary>
+
+
 ```
 $ ./install.sh
 Welcome to the Google Cloud SDK!
@@ -356,6 +360,9 @@ For more information on how to get started, please visit:
   https://cloud.google.com/sdk/docs/quickstarts
 
 ```
+</details>
+
+__important: pay attention to the next step__
 
 Using a *new* Terminal window on my  Mac, so that any newly created environment variables are taken into account, proceed as follows:
 
