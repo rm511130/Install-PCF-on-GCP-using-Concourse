@@ -9,7 +9,12 @@ Notes:
 # We start by deploying Concourse on GCP using Bosh
 We will deploy a BOSH director v1.x as part of these instructions. This Bosh Director will be dedicated to monitor and manage the health of the Concourse installation and it should not be used for a PCF deployment. We will need a separate BOSH v2.x to install PCF.
 
+<details>
+  <summary>Click to see a Bosh-Director diagram:</summary>
+
 ![](./Bosh-Director.png)
+
+</details>
 
 ## List of Pre-requisites
 Don't take any action yet. This list was placed here so you can get an idea of the tools we will be using.
