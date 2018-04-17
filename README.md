@@ -360,9 +360,7 @@ For more information on how to get started, please visit:
 ```
 </details>
 
-__important: pay attention to the next step__
-
-Using a *new* Terminal window on my  Mac, so that any newly created environment variables are taken into account, proceed as follows:
+Using a __*new*__ Terminal window on my  Mac, so that any newly created environment variables are taken into account, proceed as follows:
 
 ````
 $ cd /work/google-cloud-sdk/
