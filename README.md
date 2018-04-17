@@ -40,6 +40,9 @@ Terraform v0.11.7
 ```
 If you don't already have `Terraform` you can download and unzip [Terraform](https://www.terraform.io/downloads.html) to a directory of your chosing and then symlink the terraform executable to your `/usr/bin`. If you use `Brew` You can `brew install terraform` or `brew upgrade terraform` depending on whether or not you already have it installed.
 
+<details>
+  <summary>Click to expand</summary>
+
 Here's what happened on my  Mac when I executed `brew upgrade terraform`:
 
 ```
@@ -213,6 +216,8 @@ Updating /Users/rmeira/Library/Caches/Homebrew/terraform--golang.org-x-tools--gi
 ==> make test bin
 🍺  /usr/local/Cellar/terraform/0.11.7: 6 files, 80.2MB, built in 2 minutes 56 seconds
 ```
+  whatever
+</details>
 
 Well done! You have the Terraform CLI installed. Another pre-requisite has been met.
 
