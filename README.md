@@ -687,11 +687,12 @@ version: 1
 
   ```
   $ export GOOGLE_CREDENTIALS=$(cat /tmp/terraform-bosh.key.json)
+  $ export GOOGLE_APPLICATION_CREDENTIALS=/tmp/terraform-bosh.key.json
   ```
   
   You can check the contents of GOOGLE_CREDENTIALS as follows:
   ```
-  $ echo $GOOGLE_CREDENTIALS
+  $ echo $GOOGLE_CREDENTIALS; echo $GOOGLE_APPLICATION_CREDENTIALS
 { "type": "service_account", "project_id": "fe-rmeira", "private_key_id": "17269656872512345678909a0ddd", 
    "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBK1234567890eznJfMSp6sPr\n3Hum+VwnZ+5FDuwFGU5EbW0bLhnmpK44f0h2w/kSMe3qebZPyuuZ2\n
   3bFTXfx7miBszwvPdgvbqXDRAs+AhoYEsmatR\nQSNFAyDRoJeM+2NPCPSRpK9U\n-----END PRIVATE KEY-----\n",
@@ -699,6 +700,7 @@ version: 1
   "https://accounts.google.com/o/oauth2/auth", "token_uri": "https://accounts.google.com/o/oauth2/token", "auth_provider_x509_cert_url": 
   "https://www.googleapis.com/oauth2/v1/certs", "client_x509_cert_url": 
   "https://www.googleapis.com/robot/v1/metadata/x509/terraform-bosh%40fe-rmeira.iam.gserviceaccount.com" }
+  /tmp/terraform-bosh.key.json
   ```
   
 ### Now let's create required GCP infrastructure using Terraform
